@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "PowerShell($ErrorActionPreference='SilentlyContinue'; \"node: $\\(\\(Get-Command node\\).Source\\)\"; node --version; \"npm: $\\(\\(Get-Command npm\\).Source\\)\"; npm --version; \"pnpm: $\\(\\(Get-Command pnpm\\).Source\\)\"; \"git: $\\(\\(Get-Command git\\).Source\\)\")",
+      "PowerShell(winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-package-agreements --accept-source-agreements --silent)"
+    ]
+  }
+}

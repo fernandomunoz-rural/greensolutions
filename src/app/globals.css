@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+/*
+  Green Solutions design system — minimal, modern, corporate.
+  Brand palette from the official guidelines; restrained, type-led layout.
+*/
+@theme {
+  /* Brand colours */
+  --color-forest: #04473a; /* primary / dark green     */
+  --color-forest-700: #063f35;
+  --color-mint: #6dc99d; /* secondary / light green  */
+  --color-mint-100: #eef4f0;
+  --color-leaf: #2f7d4e; /* mid green (slightly deeper for contrast) */
+  --color-ochre: #af772e; /* accent / harvest brown   */
+  --color-sand: #dbd9b4; /* warm neutral             */
+  --color-paper: #f6f6f3; /* off-white background      */
+  --color-ink: #1b211f; /* near-black text           */
+  --color-line: #e4e4dd; /* hairline borders          */
+
+  /* Typography */
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+
+  /* Restrained depth */
+  --shadow-card: 0 1px 2px rgba(27, 33, 31, 0.04);
+  --shadow-soft: 0 18px 50px -30px rgba(4, 71, 58, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.006em;
+}
+
+::selection {
+  background-color: var(--color-forest);
+  color: var(--color-paper);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.022em;
+}
+
+/* Tighter, more editorial headings */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Article prose */
+.prose-gs :where(p) {
+  margin-block: 1rem;
+  line-height: 1.8;
+  color: #353f3b;
+}
+.prose-gs :where(h2) {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-block: 2.4rem 0.75rem;
+  color: var(--color-forest);
+}
+.prose-gs :where(h3) {
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-block: 1.6rem 0.5rem;
+  color: var(--color-forest);
+}
+.prose-gs :where(ul) {
+  margin-block: 1rem;
+  padding-left: 1.1rem;
+  list-style: none;
+}
+.prose-gs :where(li) {
+  position: relative;
+  margin-block: 0.5rem;
+  padding-left: 1rem;
+  line-height: 1.7;
+  color: #353f3b;
+}
+.prose-gs :where(li)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 6px;
+  height: 1px;
+  background: var(--color-leaf);
+}
+.prose-gs :where(strong) {
+  color: var(--color-forest);
+  font-weight: 600;
+}
