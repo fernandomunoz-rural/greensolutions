@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Logo } from "./logo";
+import { createClient } from "@/lib/supabase/client";
 import { site } from "@/data/site";
 
 type Mode = "login" | "signup";
@@ -19,9 +21,12 @@ const brandPoints = [
 
 export function AuthScreen({ mode }: { mode: Mode }) {
   const isSignup = mode === "signup";
+  const router = useRouter();
   const [values, setValues] = useState({ name: "", email: "", password: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   function validate(): Errors {
@@ -35,11 +40,57 @@ export function AuthScreen({ mode }: { mode: Mode }) {
     return next;
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const next = validate();
     setErrors(next);
-    if (Object.keys(next).length === 0) setSubmitted(true);
+    if (Object.keys(next).length > 0) return;
+
+    setSubmitting(true);
+    setFormError(null);
+    const supabase = createClient();
+
+    try {
+      if (isSignup) {
+        const { data, error } = await supabase.auth.signUp({
+          email: values.email,
+          password: values.password,
+          options: {
+            // Stored on auth.users.raw_user_meta_data; the DB trigger copies
+            // full_name into the profiles table on signup.
+            data: { full_name: values.name.trim() },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/account`,
+          },
+        });
+        if (error) throw error;
+
+        // With email confirmation on, there's no session until they confirm.
+        if (data.session) {
+          router.push("/account");
+          router.refresh();
+        } else {
+          setSubmitted(true);
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: values.email,
+          password: values.password,
+        });
+        if (error) throw error;
+
+        const params = new URLSearchParams(window.location.search);
+        router.push(params.get("next") || "/account");
+        router.refresh();
+      }
+    } catch (err) {
+      setFormError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function update(field: keyof typeof values, value: string) {
@@ -74,7 +125,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       <main className="flex items-center justify-center px-5 py-16 sm:px-8">
         <div className="w-full max-w-md">
           {submitted ? (
-            <SuccessCard isSignup={isSignup} name={values.name} />
+            <SuccessCard email={values.email} name={values.name} />
           ) : (
             <>
               <div className="lg:hidden">
@@ -157,11 +208,27 @@ export function AuthScreen({ mode }: { mode: Mode }) {
                   ) : null}
                 </div>
 
+                {formError ? (
+                  <p
+                    role="alert"
+                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  >
+                    {formError}
+                  </p>
+                ) : null}
+
                 <button
                   type="submit"
-                  className="w-full rounded-lg bg-forest px-6 py-3 text-[0.95rem] font-semibold text-paper transition-colors hover:bg-forest-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+                  disabled={submitting}
+                  className="w-full rounded-lg bg-forest px-6 py-3 text-[0.95rem] font-semibold text-paper transition-colors hover:bg-forest-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isSignup ? "Create account" : "Log in"}
+                  {submitting
+                    ? isSignup
+                      ? "Creating account…"
+                      : "Logging in…"
+                    : isSignup
+                      ? "Create account"
+                      : "Log in"}
                 </button>
               </form>
 
@@ -175,10 +242,6 @@ export function AuthScreen({ mode }: { mode: Mode }) {
                 </Link>
               </p>
 
-              <p className="mt-8 rounded-lg border border-line bg-white px-4 py-3 text-center text-xs leading-relaxed text-ink/55">
-                Accounts aren&apos;t live just yet — we&apos;re in early design.
-                Sign up and we&apos;ll be ready for you soon.
-              </p>
             </>
           )}
         </div>
@@ -228,26 +291,25 @@ function Field({
   );
 }
 
-function SuccessCard({ isSignup, name }: { isSignup: boolean; name: string }) {
+function SuccessCard({ email, name }: { email: string; name: string }) {
   return (
     <div className="text-center">
       <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint/25 text-forest">
         <CheckIcon className="h-7 w-7" />
       </span>
       <h1 className="font-display mt-6 text-2xl font-semibold text-forest">
-        {isSignup
-          ? `You're on the list${name ? `, ${name.split(" ")[0]}` : ""}!`
-          : "You're all set!"}
+        Confirm your email{name ? `, ${name.split(" ")[0]}` : ""}
       </h1>
       <p className="mt-3 text-ink/65">
-        Thanks for your interest in Green Solutions. Accounts go live as we move
-        out of early design — we&apos;ll email you the moment they do.
+        We sent a confirmation link to{" "}
+        <span className="font-semibold text-forest">{email}</span>. Click it to
+        activate your account, then log in.
       </p>
       <Link
-        href="/"
+        href="/login"
         className="mt-8 inline-flex items-center justify-center rounded-lg bg-forest px-6 py-3 text-[0.95rem] font-semibold text-paper transition-colors hover:bg-forest-700"
       >
-        Back to home
+        Go to log in
       </Link>
     </div>
   );

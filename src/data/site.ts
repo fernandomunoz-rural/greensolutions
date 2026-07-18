@@ -18,6 +18,7 @@ export type NavItem = { label: string; href: string };
 // Primary navigation. While the tools (Learn, Crops, Plant Doctor, Resources)
 // are disabled, the nav points to sections of the home page only.
 export const primaryNav: NavItem[] = [
+  { label: "News", href: "/news" },
   { label: "About", href: "/#about" },
   { label: "Our team", href: "/#team" },
 ];

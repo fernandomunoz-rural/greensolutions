@@ -1,8 +1,78 @@
 import Link from "next/link";
 import { Badge } from "./ui";
 import { Icon } from "./icons";
+import { Avatar } from "./avatar";
+import { formatDate, readMinutes, type Post } from "@/lib/posts";
 import type { Article } from "@/data/articles";
 import type { Crop } from "@/data/crops";
+
+export function PostCard({ post }: { post: Post }) {
+  return (
+    <Link
+      href={`/news/${post.slug}`}
+      className="group flex flex-col overflow-hidden rounded-xl border border-line bg-white transition-colors duration-200 hover:border-forest/25"
+    >
+      {/* Cover */}
+      {post.cover_url ? (
+        // eslint-disable-next-line @next/next/no-img-element -- user-uploaded storage URL
+        <img
+          src={post.cover_url}
+          alt=""
+          className="aspect-[16/9] w-full object-cover"
+        />
+      ) : (
+        <div className="flex aspect-[16/9] w-full items-center justify-center bg-gradient-to-br from-leaf to-forest text-mint/70">
+          <Icon.Leaf className="h-9 w-9" />
+        </div>
+      )}
+
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex items-center justify-between">
+          {post.category ? (
+            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-leaf">
+              {post.category}
+            </span>
+          ) : (
+            <span />
+          )}
+          <span className="text-xs text-ink/40">
+            {readMinutes(post.body)} min read
+          </span>
+        </div>
+        <h3 className="font-display mt-3 text-xl font-semibold leading-snug text-forest">
+          {post.title}
+        </h3>
+        {post.excerpt ? (
+          <p className="mt-2.5 flex-1 text-sm leading-relaxed text-ink/65">
+            {post.excerpt}
+          </p>
+        ) : (
+          <div className="flex-1" />
+        )}
+        <div className="mt-6 flex items-center gap-2.5 border-t border-line pt-4">
+          <Avatar
+            src={post.author?.avatar_url}
+            name={post.author?.full_name}
+            className="h-7 w-7 text-[0.6rem]"
+          />
+          <span className="text-xs font-medium text-ink/55">
+            {post.author?.full_name ?? "Green Solutions"}
+          </span>
+          {post.published_at ? (
+            <>
+              <span className="text-ink/30" aria-hidden="true">
+                •
+              </span>
+              <span className="text-xs text-ink/45">
+                {formatDate(post.published_at)}
+              </span>
+            </>
+          ) : null}
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export function ArticleCard({ article }: { article: Article }) {
   return (

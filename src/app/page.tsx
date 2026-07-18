@@ -1,7 +1,22 @@
 import Link from "next/link";
 import { Container, SectionHeading, Button, Eyebrow } from "@/components/ui";
 import { Icon } from "@/components/icons";
+import { PostCard } from "@/components/cards";
+import { createClient } from "@/lib/supabase/server";
+import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
 import { site, stats, values, offices, problems } from "@/data/site";
+
+async function getLatestPosts(): Promise<Post[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("posts")
+    .select(POST_WITH_AUTHOR)
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(3);
+  if (error) return []; // table may not exist yet
+  return (data ?? []) as unknown as Post[];
+}
 
 // Tools that are temporarily disabled while the project is in early design.
 // Shown on the home page as a roadmap so the scope is clear without linking out.
@@ -21,7 +36,8 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const latestPosts = await getLatestPosts();
   return (
     <>
       {/* HERO */}
@@ -114,6 +130,33 @@ export default function HomePage() {
           </dl>
         </Container>
       </section>
+
+      {/* LATEST NEWS — only shows once posts are published */}
+      {latestPosts.length > 0 ? (
+        <section className="border-b border-line bg-paper py-24">
+          <Container>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <SectionHeading
+                eyebrow="From the field"
+                title="Latest news & stories"
+                intro="Fresh guidance, updates, and growing stories from the community."
+              />
+              <Link
+                href="/news"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-leaf"
+              >
+                View all news
+                <Icon.ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {latestPosts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      ) : null}
 
       {/* WHY WE EXIST */}
       <section className="py-24">

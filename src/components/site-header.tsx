@@ -5,9 +5,21 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "./logo";
 import { Button } from "./ui";
+import { Avatar } from "./avatar";
+import { signOut } from "@/app/auth/actions";
 import { primaryNav, authNav } from "@/data/site";
 
-export function SiteHeader() {
+export function SiteHeader({
+  isAuthed = false,
+  isStaff = false,
+  avatarUrl = null,
+  fullName = null,
+}: {
+  isAuthed?: boolean;
+  isStaff?: boolean;
+  avatarUrl?: string | null;
+  fullName?: string | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -36,15 +48,49 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link
-            href={authNav.login.href}
-            className="rounded-md px-3.5 py-2 text-sm font-semibold text-forest transition-colors hover:bg-forest/[0.05]"
-          >
-            {authNav.login.label}
-          </Link>
-          <Button href={authNav.signup.href} size="md">
-            {authNav.signup.label}
-          </Button>
+          {isAuthed ? (
+            <>
+              {isStaff ? (
+                <Link
+                  href="/studio"
+                  className={`rounded-md px-3.5 py-2 text-sm font-semibold transition-colors ${
+                    isActive("/studio")
+                      ? "text-forest"
+                      : "text-ink/60 hover:text-forest"
+                  }`}
+                >
+                  Studio
+                </Link>
+              ) : null}
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="rounded-md px-3.5 py-2 text-sm font-semibold text-ink/60 transition-colors hover:text-forest"
+                >
+                  Log out
+                </button>
+              </form>
+              <Link
+                href="/account"
+                aria-label="Your account"
+                className="rounded-full ring-offset-2 ring-offset-paper transition-shadow hover:ring-2 hover:ring-forest/20"
+              >
+                <Avatar src={avatarUrl} name={fullName} className="h-9 w-9" />
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href={authNav.login.href}
+                className="rounded-md px-3.5 py-2 text-sm font-semibold text-forest transition-colors hover:bg-forest/[0.05]"
+              >
+                {authNav.login.label}
+              </Link>
+              <Button href={authNav.signup.href} size="md">
+                {authNav.signup.label}
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -88,21 +134,54 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href={authNav.login.href}
-              onClick={() => setOpen(false)}
-              className="block rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
-            >
-              {authNav.login.label}
-            </Link>
-            <Button
-              href={authNav.signup.href}
-              size="lg"
-              className="mt-2 w-full"
-              onClick={() => setOpen(false)}
-            >
-              {authNav.signup.label}
-            </Button>
+            {isAuthed ? (
+              <>
+                {isStaff ? (
+                  <Link
+                    href="/studio"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
+                  >
+                    Studio
+                  </Link>
+                ) : null}
+                <Link
+                  href="/account"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
+                >
+                  <Avatar src={avatarUrl} name={fullName} className="h-7 w-7 text-xs" />
+                  Account
+                </Link>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    onClick={() => setOpen(false)}
+                    className="block w-full rounded-lg px-4 py-3 text-left text-base font-semibold text-ink/75 hover:bg-forest/5"
+                  >
+                    Log out
+                  </button>
+                </form>
+              </>
+            ) : (
+              <>
+                <Link
+                  href={authNav.login.href}
+                  onClick={() => setOpen(false)}
+                  className="block rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
+                >
+                  {authNav.login.label}
+                </Link>
+                <Button
+                  href={authNav.signup.href}
+                  size="lg"
+                  className="mt-2 w-full"
+                  onClick={() => setOpen(false)}
+                >
+                  {authNav.signup.label}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       ) : null}

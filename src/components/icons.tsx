@@ -150,6 +150,41 @@ export const Icon = {
       <path d="M8 5v14l11-7-11-7Z" />
     </svg>
   ),
+  Pencil: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+      <path d="M13.5 6.5l3 3" />
+    </svg>
+  ),
+  Newspaper: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M4 6a2 2 0 0 1 2-2h11v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2V6Z" />
+      <path d="M17 8h2a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2M8 8h6M8 12h6M8 16h4" />
+    </svg>
+  ),
+  Image: (p: IconProps) => (
+    <svg {...base(p)}>
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <circle cx="9" cy="9" r="1.6" />
+      <path d="M20 15l-4-4-8 8" />
+    </svg>
+  ),
+  User: (p: IconProps) => (
+    <svg {...base(p)}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6" />
+    </svg>
+  ),
+  Trash: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
+    </svg>
+  ),
+  Upload: (p: IconProps) => (
+    <svg {...base(p)}>
+      <path d="M12 15V4M8 8l4-4 4 4M5 20h14" />
+    </svg>
+  ),
 };
 
 export type IconName = keyof typeof Icon;
