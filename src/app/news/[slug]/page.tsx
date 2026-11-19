@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Container } from "@/components/ui";
-import { PostCard } from "@/components/cards";
+import { Board, MoreLink, PhotoTile, SectionHead } from "@/components/ui";
+import { PostCard, fallbackPlate } from "@/components/cards";
 import { Avatar } from "@/components/avatar";
 import { Markdown } from "@/components/markdown";
 import { createClient } from "@/lib/supabase/server";
@@ -56,63 +56,74 @@ export default async function PostPage({
     .order("published_at", { ascending: false })
     .limit(3);
   const more = (moreData ?? []) as unknown as Post[];
+  const plate = fallbackPlate(post.slug);
 
   return (
     <article>
-      <Container className="pt-[clamp(2.5rem,7vw,6rem)]">
-        <h1 className="animate-fade-in display max-w-[22ch] text-[2.1rem] sm:text-[clamp(2.5rem,1rem+4.6vw,6rem)]">
-          {post.title}
-        </h1>
-        <div className="mt-10 grid gap-8 lg:grid-cols-12">
-          <div className="flex items-center gap-3 text-[length:var(--text-small)] text-ink-soft lg:col-span-3 lg:flex-col lg:items-start">
-            <Avatar src={post.author?.avatar_url} name={post.author?.full_name} className="h-11 w-11 text-sm" />
-            <p>
-              <span className="block text-ink">{post.author?.full_name ?? "Green Solutions"}</span>
-              {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
-              <Link href="/news" className="mt-1 block text-ink underline decoration-1 underline-offset-4 hover:text-field">
-                All news
-              </Link>
-            </p>
-          </div>
+      <Board className="pt-2">
+        <header
+          className={`col-span-2 flex min-h-[clamp(18rem,36vw,28rem)] flex-col justify-end rounded-[8px] bg-field p-6 text-on-field ${
+            "md:col-span-7"
+          }`}
+        >
+          <h1 className="animate-fade-in display max-w-[22ch] text-[clamp(2.1rem,1.2rem+3.4vw,4.5rem)]">{post.title}</h1>
           {post.excerpt ? (
-            <p className="max-w-[36ch] text-[length:var(--text-lead)] leading-snug text-ink lg:col-span-9">
+            <p className="animate-fade-in mt-5 max-w-[48ch] text-[length:var(--text-lead)] leading-snug text-on-field-soft">
               {post.excerpt}
             </p>
           ) : null}
-        </div>
-      </Container>
+        </header>
+        {post.cover_url ? (
+          <PhotoTile src={post.cover_url} alt="" priority shutter className="col-span-2 aspect-[4/3] md:col-span-5 md:aspect-auto" />
+        ) : (
+          // No cover yet: the same botanical plate its tile shows in lists.
+          <PhotoTile
+            src={plate.image}
+            alt=""
+            caption={plate.caption}
+            strip="ground"
+            position={plate.focus}
+            blend
+            priority
+            className="col-span-2 aspect-[4/3] bg-tile! md:col-span-5 md:aspect-auto"
+          />
+        )}
 
-      {post.cover_url ? (
-        <div data-reveal className="mt-14 px-[var(--margin)]">
-          {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded storage URL */}
-          <img src={post.cover_url} alt="" className="mx-auto max-h-[80svh] w-full max-w-[1440px] object-cover" />
-        </div>
-      ) : null}
+        <aside className="col-span-2 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:col-span-3">
+          <div className="flex items-center gap-3 md:sticky md:top-6">
+            <Avatar src={post.author?.avatar_url} name={post.author?.full_name} className="h-11 w-11 shrink-0 text-sm" />
+            <p className="text-[length:var(--text-small)] text-ink-soft">
+              <span className="block font-semibold text-ink">{post.author?.full_name ?? "Green Solutions"}</span>
+              {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
+            </p>
+          </div>
+          <Link
+            href="/news"
+            className="mt-6 inline-flex text-[length:var(--text-small)] font-medium text-field underline decoration-1 underline-offset-4 hover:text-ink"
+          >
+            ← All news
+          </Link>
+        </aside>
 
-      {/* Body — Markdown with raw HTML dropped (see components/markdown.tsx). */}
-      <Container className="py-[clamp(3rem,7vw,6rem)]">
-        <div data-reveal className="lg:ml-[calc(3/12*100%)]">
+        {/* Body — Markdown with raw HTML dropped (see components/markdown.tsx). */}
+        <div className="col-span-2 rounded-[8px] bg-tile p-6 md:col-span-8 lg:col-span-9 lg:p-12">
           {post.body.trim() ? (
             <Markdown source={post.body} className="max-w-[68ch]" />
           ) : (
             <p className="text-ink-soft">This post has no content yet.</p>
           )}
         </div>
-      </Container>
+      </Board>
 
       {more.length > 0 ? (
-        <section className="bg-ground-2 py-[clamp(5rem,10vw,8rem)]">
-          <Container>
-            <h2 data-reveal className="display text-[length:var(--text-head)]">More from the field</h2>
-            <div className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-              {more.map((p, i) => (
-                <div key={p.id} data-reveal style={{ ["--i" as string]: i }}>
-                  <PostCard post={p} />
-                </div>
-              ))}
+        <Board as="section" aria-labelledby="more" className="mt-2">
+          <SectionHead id="more" title="More from the field" action={<MoreLink href="/news">All news</MoreLink>} />
+          {more.map((p) => (
+            <div key={p.id} className="col-span-2 md:col-span-6 lg:col-span-4">
+              <PostCard post={p} />
             </div>
-          </Container>
-        </section>
+          ))}
+        </Board>
       ) : null}
     </article>
   );

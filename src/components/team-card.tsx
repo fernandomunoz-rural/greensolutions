@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { memberAnchor, type TeamMember } from "@/lib/team";
 
 function initials(name: string) {
@@ -10,72 +11,90 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-/**
- * "Portrait as drop cap": the person's paragraph set large, their square
- * portrait floated at its start like a drop capital. Without a photo, their
- * initials on the leaf-green field take the same square.
- */
+// Tiles without a portrait take one of these in turn, so a row of
+// initials reads as a set of colours, not a row of blanks.
+const TINTS = ["bg-field text-accent", "bg-sea text-on-sea-soft", "bg-accent text-field", "bg-ink text-accent"];
+
+function Portrait({ member, index }: { member: TeamMember; index: number }) {
+  return (
+    <div className="relative aspect-[4/5] overflow-hidden" data-ui={member.photo_url ? undefined : ""}>
+      {member.photo_url ? (
+        // eslint-disable-next-line @next/next/no-img-element -- storage URL
+        <img
+          src={member.photo_url}
+          alt={`Portrait of ${member.name}`}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.03]"
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className={`display flex h-full w-full items-end p-6 text-[clamp(3rem,2rem+3vw,5rem)] ${TINTS[index % TINTS.length]}`}
+        >
+          {initials(member.name)}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Home page: portrait, name and office; links to the full profile. */
+export function MemberTile({ member, index = 0 }: { member: TeamMember; index?: number }) {
+  return (
+    <Link
+      href={`/team#${memberAnchor(member.name)}`}
+      data-reveal
+      style={{ ["--i" as string]: index % 4 }}
+      className="group flex flex-col overflow-hidden rounded-[8px] bg-ground-2 transition-colors hover:bg-ground-3"
+    >
+      <Portrait member={member} index={index} />
+      <div className="p-5">
+        <p className="font-semibold leading-tight text-ink">{member.name}</p>
+        <p className="mt-1 text-[length:var(--text-small)] text-ink-soft">{member.title}</p>
+      </div>
+    </Link>
+  );
+}
+
+/** Team page: the full profile as one tile. */
 export function TeamProfile({ member, index = 0 }: { member: TeamMember; index?: number }) {
   const bio = (member.bio || "").split(/\n{2,}/).filter(Boolean);
-  const facts = [
-    member.title,
-    member.email ? (
-      <a key="e" href={`mailto:${member.email}`} className="text-ink underline decoration-1 underline-offset-4 hover:text-field">
-        {member.email}
-      </a>
-    ) : null,
-    member.linkedin_url ? (
-      <a
-        key="l"
-        href={member.linkedin_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-ink underline decoration-1 underline-offset-4 hover:text-field"
-      >
-        LinkedIn
-      </a>
-    ) : null,
-  ].filter(Boolean);
-
   return (
     <article
       id={memberAnchor(member.name)}
       data-reveal
       style={{ ["--i" as string]: index % 3 }}
-      className="grid scroll-mt-24 gap-6 py-[clamp(3rem,7vw,6rem)] lg:grid-cols-12"
+      className="group flex scroll-mt-24 flex-col overflow-hidden rounded-[8px] bg-ground-2"
     >
-      <ul className="order-2 flex flex-wrap gap-x-6 gap-y-1 text-[length:var(--text-small)] text-ink-soft lg:order-1 lg:col-span-2 lg:flex-col">
-        {facts.map((f, i) => (
-          <li key={i}>{f}</li>
-        ))}
-      </ul>
-      <div className="order-1 text-[clamp(1.375rem,0.95rem+1.9vw,2.25rem)] leading-[1.22] lg:order-2 lg:col-span-10">
-        <p className="text-ink-soft">
-          {member.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element -- storage URL
-            <img
-              src={member.photo_url}
-              alt={`Portrait of ${member.name}`}
-              loading="lazy"
-              className="float-left mr-[0.5em] mt-[0.16em] h-[3.6em] w-[3.6em] object-cover max-sm:h-[4.6em] max-sm:w-[4.6em]"
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="display float-left mr-[0.5em] mt-[0.16em] flex h-[3.6em] w-[3.6em] items-center justify-center bg-field text-[1em] text-accent max-sm:h-[4.6em] max-sm:w-[4.6em]"
-            >
-              <span className="text-[1.6em]">{initials(member.name)}</span>
-            </span>
-          )}
-          <span className="text-ink">{member.name}</span>
-          {member.summary ? <>, {member.summary.charAt(0).toLowerCase() + member.summary.slice(1)}</> : "."}
-        </p>
+      <Portrait member={member} index={index} />
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="text-[length:var(--text-lead)] font-semibold leading-tight tracking-[-0.01em] text-ink">{member.name}</h3>
+        <p className="mt-1 text-[length:var(--text-small)] text-ink-soft">{member.title}</p>
+        {member.summary ? <p className="mt-4 text-ink">{member.summary}</p> : null}
         {bio.map((p, i) => (
-          <p key={i} className="mt-[1em] whitespace-pre-line text-ink-soft">
+          <p key={i} className="mt-3 whitespace-pre-line text-ink">
             {p}
           </p>
         ))}
-        <div className="clear-both" />
+        {member.email || member.linkedin_url ? (
+          <p className="mt-auto flex flex-wrap gap-x-5 gap-y-1 pt-6 text-[length:var(--text-small)] font-medium">
+            {member.email ? (
+              <a href={`mailto:${member.email}`} className="text-field underline decoration-1 underline-offset-4 hover:text-ink">
+                {member.email}
+              </a>
+            ) : null}
+            {member.linkedin_url ? (
+              <a
+                href={member.linkedin_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-field underline decoration-1 underline-offset-4 hover:text-ink"
+              >
+                LinkedIn
+              </a>
+            ) : null}
+          </p>
+        ) : null}
       </div>
     </article>
   );

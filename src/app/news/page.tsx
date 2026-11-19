@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Container } from "@/components/ui";
+import { Board } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
 import { PostCard } from "@/components/cards";
 import { createClient } from "@/lib/supabase/server";
-import { POST_WITH_AUTHOR, formatDate, readMinutes, type Post } from "@/lib/posts";
+import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
+import { PLACES } from "@/lib/places";
 
 export const metadata: Metadata = {
   title: "News & stories",
@@ -27,49 +27,27 @@ async function getPublishedPosts(): Promise<Post[]> {
 
 export default async function NewsPage() {
   const posts = await getPublishedPosts();
-  const [lead, ...rest] = posts;
 
   return (
     <>
-      <PageHero title="From the field" intro="Updates, growing stories and announcements for gardeners and growers across The Bahamas." />
-      <Container className="pb-[clamp(5rem,10vw,9rem)]">
-        {!lead ? (
-          <p className="text-[length:var(--text-lead)] text-ink">The first stories are on their way. Check back soon.</p>
+      <PageHero
+        title="From the field"
+        intro="Updates, growing stories and announcements for gardeners and growers across The Bahamas."
+        place={PLACES.produceStall}
+      />
+      <Board className="mt-2">
+        {posts.length === 0 ? (
+          <p className="col-span-2 rounded-[8px] bg-ground-2 p-6 text-[length:var(--text-lead)] md:col-span-12">
+            The first stories are on their way. Check back soon.
+          </p>
         ) : (
-          <>
-            {/* The newest story at full width: picture left, words right. */}
-            <Link href={`/news/${lead.slug}`} className="group grid gap-8 lg:grid-cols-12 lg:items-end">
-              <div className="relative aspect-[4/3] overflow-hidden bg-ground-2 lg:col-span-7">
-                {lead.cover_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- storage URL
-                  <img src={lead.cover_url} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
-                ) : (
-                  <span className="display flex h-full w-full items-end bg-field p-8 text-[length:var(--text-head)] text-accent">
-                    {lead.category ?? "News"}
-                  </span>
-                )}
-              </div>
-              <div className="lg:col-span-5">
-                <h2 className="display text-[clamp(2rem,1rem+2.4vw,3rem)] leading-[1.05] group-hover:text-field">{lead.title}</h2>
-                <p className="mt-3 text-[length:var(--text-small)] text-ink-soft">
-                  {[lead.category, formatDate(lead.published_at), `${readMinutes(lead.body)} min read`].filter(Boolean).join(" · ")}
-                </p>
-                {lead.excerpt ? <p className="mt-4 text-[length:var(--text-lead)] leading-snug text-ink">{lead.excerpt}</p> : null}
-              </div>
-            </Link>
-
-            {rest.length ? (
-              <div className="mt-[clamp(5rem,10vw,8rem)] grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
-                {rest.map((p, i) => (
-                  <div key={p.id} data-reveal style={{ ["--i" as string]: i % 3 }}>
-                    <PostCard post={p} />
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </>
+          posts.map((p) => (
+            <div key={p.id} className={posts.length === 1 ? "col-span-2 md:col-span-12" : "col-span-2 md:col-span-6 lg:col-span-4"}>
+              <PostCard post={p} wide={posts.length === 1} />
+            </div>
+          ))
         )}
-      </Container>
+      </Board>
     </>
   );
 }

@@ -1,15 +1,29 @@
+import Image from "next/image";
 import Link from "next/link";
+import { ALL_PLATES } from "@/lib/calendar";
 import { Badge } from "./ui";
 import { Icon } from "./icons";
 import { formatDate, readMinutes, type Post } from "@/lib/posts";
 import type { Article } from "@/data/articles";
 import type { Crop } from "@/data/crops";
 
-/** An article as a row: picture, then the title large, then the excerpt. No box. */
-export function PostCard({ post }: { post: Post }) {
+/** Without a cover, an article borrows one of the botanical plates, picked by its slug. */
+export function fallbackPlate(slug: string) {
+  let h = 0;
+  for (const ch of slug) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return ALL_PLATES[h % ALL_PLATES.length];
+}
+
+/** An article as a tile: picture on top, then date, title and excerpt. */
+export function PostCard({ post, className = "", wide = false }: { post: Post; className?: string; /** Picture beside the words, for a lone article. */ wide?: boolean }) {
+  const plate = post.cover_url ? null : fallbackPlate(post.slug);
   return (
-    <Link href={`/news/${post.slug}`} className="group block">
-      <div className="relative aspect-[4/3] overflow-hidden bg-ground-2">
+    <Link
+      href={`/news/${post.slug}`}
+      data-reveal
+      className={`group flex h-full flex-col overflow-hidden rounded-[8px] bg-ground-2 transition-colors duration-200 hover:bg-ground-3 ${wide ? "md:flex-row" : ""} ${className}`}
+    >
+      <div className={`relative aspect-[16/10] shrink-0 overflow-hidden bg-tile ${wide ? "md:aspect-auto md:min-h-[24rem] md:w-1/2" : ""}`}>
         {post.cover_url ? (
           // eslint-disable-next-line @next/next/no-img-element -- user-uploaded storage URL
           <img
@@ -18,17 +32,28 @@ export function PostCard({ post }: { post: Post }) {
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.03]"
           />
-        ) : (
-          <span className="display flex h-full w-full items-end bg-field p-5 text-[length:var(--text-lead)] text-accent">
-            {post.category ?? "News"}
-          </span>
-        )}
+        ) : plate ? (
+          <Image
+            src={plate.image}
+            alt=""
+            fill
+            sizes="(min-width: 768px) 33vw, 100vw"
+            className="object-cover mix-blend-multiply transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.03]"
+            style={{ objectPosition: plate.focus }}
+          />
+        ) : null}
       </div>
-      <h3 className="mt-4 text-[length:var(--text-lead)] leading-tight text-ink group-hover:text-field">{post.title}</h3>
-      <p className="mt-1 text-[length:var(--text-small)] text-ink-soft">
-        {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
-      </p>
-      {post.excerpt ? <p className="mt-2 text-ink-soft">{post.excerpt}</p> : null}
+      <div className="flex flex-1 flex-col p-6">
+        <p className="text-[length:var(--text-small)] text-ink-soft">
+          {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
+        </p>
+        <h3 className="mt-2 text-[length:var(--text-lead)] font-semibold leading-tight tracking-[-0.01em] text-ink">{post.title}</h3>
+        {post.excerpt ? <p className="mt-3 line-clamp-3 text-ink">{post.excerpt}</p> : null}
+        <span className="mt-auto flex items-center gap-2 pt-6 text-[length:var(--text-small)] font-medium text-field">
+          Read the article
+          <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+        </span>
+      </div>
     </Link>
   );
 }

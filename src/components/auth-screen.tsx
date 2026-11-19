@@ -99,9 +99,9 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   }
 
   return (
-    <div className="grid min-h-[calc(100vh-4.5rem)] lg:grid-cols-2">
+    <div className="mx-auto grid min-h-[calc(100svh-5rem)] w-full max-w-[1680px] gap-2 px-2 pt-2 sm:px-3 lg:grid-cols-2">
       {/* Brand panel */}
-      <aside className="relative hidden flex-col justify-between bg-forest p-12 text-mint-100 lg:flex">
+      <aside className="relative hidden flex-col justify-between rounded-[8px] bg-forest p-6 text-mint-100 lg:flex">
         <Logo variant="light" className="text-[14px]" />
         <div className="max-w-md">
           <p className="font-display text-3xl font-semibold leading-tight text-white">
@@ -122,7 +122,7 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       </aside>
 
       {/* Form panel */}
-      <main className="flex items-center justify-center px-5 py-16 sm:px-8">
+      <main className="flex items-center justify-center rounded-[8px] bg-ground-2 px-5 py-16 sm:px-8">
         <div className="w-full max-w-md">
           {submitted ? (
             <SuccessCard email={values.email} name={values.name} />

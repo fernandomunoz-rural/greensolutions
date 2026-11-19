@@ -28,14 +28,14 @@ export function SiteHeader({
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href.replace(/#.*/, "")) && !href.includes("#"));
   const link = (active: boolean) =>
-    `text-[length:var(--text-small)] transition-colors ${active ? "text-ink underline decoration-1 underline-offset-[6px]" : "text-ink hover:text-field"}`;
+    `rounded-[8px] px-3 py-2 text-[length:var(--text-small)] font-medium transition-colors ${active ? "bg-ground text-ink" : "text-ink hover:bg-ground-3"}`;
 
   return (
-    <header className="relative z-50 bg-ground">
-      <div className="mx-auto flex h-[4.5rem] w-full max-w-[1440px] items-center justify-between gap-6 px-[var(--margin)]">
-        <Logo className="text-[13px]" />
+    <header className="relative z-50 mx-auto w-full max-w-[1680px] px-2 pt-2 sm:px-3">
+      <div className="flex h-16 items-center justify-between gap-6 rounded-[8px] bg-ground-2 pl-6 pr-2">
+        <Logo className="text-[14px]" />
 
-        <nav aria-label="Main" className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
           {primaryNav.map((item) => (
             <Link key={item.href} href={item.href} className={link(isActive(item.href))}>
               {item.label}
@@ -43,7 +43,7 @@ export function SiteHeader({
           ))}
         </nav>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-1 md:flex">
           {isAuthed ? (
             <>
               {isStaff ? (
@@ -70,7 +70,7 @@ export function SiteHeader({
           )}
         </div>
 
-        <div className="flex items-center gap-4 md:hidden">
+        <div className="flex items-center gap-1 md:hidden">
           {isAuthed ? null : (
             <Button href={authNav.signup.href} className="h-10 px-4">
               {authNav.signup.label}
@@ -81,7 +81,7 @@ export function SiteHeader({
           onClick={() => setOpenOn(open ? null : pathname)}
           aria-expanded={open}
           aria-controls="site-menu"
-          className="press h-11 px-1 text-[length:var(--text-small)] text-ink underline decoration-1 underline-offset-[6px]"
+          className="press h-11 rounded-[8px] bg-ground px-4 text-[length:var(--text-small)] font-medium text-ink"
         >
           {open ? "Close" : "Menu"}
         </button>
@@ -89,7 +89,7 @@ export function SiteHeader({
       </div>
 
       {open ? (
-        <nav id="site-menu" aria-label="Main" className="absolute inset-x-0 top-full z-50 bg-ground px-[var(--margin)] pb-8 pt-2 shadow-[var(--shadow-float)] md:hidden" /* taste-skill-ignore: the open menu floats over the page */>
+        <nav id="site-menu" aria-label="Main" className="absolute inset-x-2 top-full z-50 mt-2 rounded-[8px] bg-ground-2 p-6 shadow-[var(--shadow-float)] sm:inset-x-3 md:hidden" /* taste-skill-ignore: the open menu floats over the page */>
           <ul className="space-y-1">
             {primaryNav.map((item) => (
               <li key={item.href}>

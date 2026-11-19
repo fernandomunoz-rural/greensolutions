@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import localFont from "next/font/local";
+import { Jost } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -8,29 +8,9 @@ import { PublicOnly } from "@/components/public-only";
 import { Reveal } from "@/components/reveal";
 import { getSiteContent, getViewer, isPreviewing } from "@/lib/content/load";
 
-// Sentient (Indian Type Foundry, Fontshare, free for commercial use): the
-// one face of the public site. Self-hosted so no third-party request.
-const sentient = localFont({
-  variable: "--font-sentient",
-  display: "swap",
-  src: [
-    { path: "../assets/fonts/Sentient-Light.woff2", weight: "300", style: "normal" },
-    { path: "../assets/fonts/Sentient-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../assets/fonts/Sentient-Italic.woff2", weight: "400", style: "italic" },
-    { path: "../assets/fonts/Sentient-Medium.woff2", weight: "500", style: "normal" },
-  ],
-});
-
-// General Sans (Fontshare): small interface text in the admin only.
-const general = localFont({
-  variable: "--font-general",
-  display: "swap",
-  src: [
-    { path: "../assets/fonts/GeneralSans-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../assets/fonts/GeneralSans-Medium.woff2", weight: "500", style: "normal" },
-    { path: "../assets/fonts/GeneralSans-Semibold.woff2", weight: "600", style: "normal" },
-  ],
-});
+// Jost: the one face of the site and the admin. next/font self-hosts it at
+// build time, so visitors never call Google.
+const jost = Jost({ subsets: ["latin"], variable: "--font-jost", display: "swap" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const { settings } = await getSiteContent();
@@ -66,7 +46,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sentient.variable} ${general.variable} h-full antialiased`}
+      className={`${jost.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

@@ -1,4 +1,5 @@
-import { Logo } from "./logo";
+import Link from "next/link";
+import { Board } from "./ui";
 import { PICTURE_CREDITS } from "@/data/credits";
 import type { SiteContent } from "@/lib/content/schema";
 
@@ -7,69 +8,100 @@ const links = [
   { label: "Team", href: "/team" },
   { label: "What we do", href: "/#about" },
   { label: "Create an account", href: "/signup" },
+  { label: "Log in", href: "/login" },
 ];
 
-/** "Contact as the headline": the email address is the close of every page. */
+const linkCls = "underline decoration-1 underline-offset-4 hover:text-field";
+
+/** The last row of the board: the name built large, then links, contact and credits as tiles. */
 export function SiteFooter({ settings }: { settings: SiteContent["settings"] }) {
   const socials = [
     { label: "Instagram", href: settings.instagram },
     { label: "Facebook", href: settings.facebook },
     { label: "YouTube", href: settings.youtube },
   ].filter((s) => s.href);
-  const [user, domain] = settings.email.split("@");
+  const words = settings.name.trim().split(/\s+/);
 
   return (
-    <footer className="flex min-h-[90svh] flex-col bg-field px-[var(--margin)] pb-8 pt-[clamp(6rem,14vw,10rem)] text-on-field">
-      <div className="flex flex-wrap items-start justify-between gap-8">
-        <div className="flex flex-col gap-5 sm:flex-row sm:gap-12">
-          <Logo variant="light" className="text-[12px]" />
-          <p className="max-w-[38ch] text-[length:var(--text-body)] text-on-field">{settings.description}</p>
-          {settings.location ? <p className="text-[length:var(--text-body)] text-on-field">{settings.location}</p> : null}
-        </div>
-        <a href="#" className="text-[length:var(--text-small)] underline decoration-1 underline-offset-4 hover:text-accent">
-          Back to top
-        </a>
-      </div>
-
-      <div className="mt-auto pt-24">
-        {settings.email ? (
-          <a
-            href={`mailto:${settings.email}`}
-            className="display block break-words text-[clamp(2.4rem,0.5rem+7.6vw,9rem)] leading-[0.95] transition-colors hover:text-accent"
-          >
-            {user}
-            <wbr />@{domain}
-          </a>
-        ) : null}
-
-        <div className="mt-12 grid gap-6 text-[length:var(--text-small)] text-on-field lg:grid-cols-[1fr_2fr_auto]">
-          <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-2">
-            {[...links, ...socials].map((l) => (
-              <a key={l.label} href={l.href} className="text-on-field underline decoration-1 underline-offset-4 hover:text-accent" {...(l.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-                {l.label}
-              </a>
+    <footer className="mt-2 pb-2 sm:pb-3">
+      <Board>
+        <div className="col-span-2 flex min-h-[22rem] flex-col justify-between gap-10 rounded-[8px] bg-field p-6 text-on-field md:col-span-12 lg:col-span-7">
+          <p className="max-w-[46ch] text-on-field-soft">{settings.description}</p>
+          <p className="display text-[clamp(3.5rem,1rem+8vw,9rem)] uppercase leading-[0.85] text-accent" aria-label={settings.name}>
+            {words.map((w, i) => (
+              <span key={i} className="block" aria-hidden="true">
+                {w}
+              </span>
             ))}
-          </nav>
-          <p className="text-[length:var(--text-body)] text-on-field">
-            Pictures: botanical plates by{" "}
-            <a href={PICTURE_CREDITS[0].href} className="underline decoration-1 underline-offset-2 hover:text-accent" target="_blank" rel="noopener noreferrer">
-              F. M. Blanco
-            </a>{" "}
-            (Flora de Filipinas) and{" "}
-            <a href={PICTURE_CREDITS[1].href} className="underline decoration-1 underline-offset-2 hover:text-accent" target="_blank" rel="noopener noreferrer">
-              Prospero Alpino
-            </a>
-            , public domain; Staniel Cay by{" "}
-            <a href={PICTURE_CREDITS[6].href} className="underline decoration-1 underline-offset-2 hover:text-accent" target="_blank" rel="noopener noreferrer">
-              cogdogblog
-            </a>
-            , CC0. Via Wikimedia Commons. Type: Sentient, Indian Type Foundry.
-          </p>
-          <p>
-            {settings.name}, {new Date().getFullYear()}
           </p>
         </div>
-      </div>
+
+        <nav aria-label="Footer" className="col-span-1 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:col-span-2">
+          <p className="font-semibold">Site</p>
+          <ul className="mt-4 space-y-2">
+            {links.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className={linkCls}>
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="col-span-1 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:col-span-3">
+          <p className="font-semibold">Contact</p>
+          <ul className="mt-4 space-y-2">
+            {settings.email ? (
+              <li>
+                <a href={`mailto:${settings.email}`} className={linkCls}>
+                  {settings.email.split("@")[0]}
+                  <wbr />@{settings.email.split("@")[1]}
+                </a>
+              </li>
+            ) : null}
+            {settings.location ? <li>{settings.location}</li> : null}
+            {socials.map((s) => (
+              <li key={s.label}>
+                <a href={s.href} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                  {s.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="col-span-2 flex flex-col justify-between gap-6 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:hidden">
+          <p className="font-semibold">{settings.name}</p>
+          <a href="#" className={`${linkCls} text-[length:var(--text-small)]`}>
+            Back to top
+          </a>
+        </div>
+
+        <div className="col-span-2 flex flex-wrap items-start justify-between gap-6 rounded-[8px] bg-ground-2 p-6 text-[length:var(--text-small)] md:col-span-12">
+          <p className="max-w-[110ch] text-ink">
+            Pictures:{" "}
+            {PICTURE_CREDITS.map((c, i) => (
+              <span key={c.href}>
+                <a href={c.href} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                  {c.title}
+                </a>{" "}
+                by {c.by}, {c.licence}
+                {i < PICTURE_CREDITS.length - 1 ? "; " : ". "}
+              </span>
+            ))}
+            Type: Jost by Owen Earl.
+          </p>
+          <p className="flex gap-6">
+            <span>
+              © {new Date().getFullYear()} {settings.name}
+            </span>
+            <a href="#" className={`${linkCls} max-lg:hidden`}>
+              Back to top
+            </a>
+          </p>
+        </div>
+      </Board>
     </footer>
   );
 }
