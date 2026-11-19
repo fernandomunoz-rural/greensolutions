@@ -42,6 +42,7 @@ export function Split({
   delay = 0,
   id,
   style,
+  immediate = false,
 }: {
   text: string;
   as?: "h1" | "h2" | "h3" | "p";
@@ -50,6 +51,8 @@ export function Split({
   delay?: number;
   id?: string;
   style?: CSSProperties;
+  /** Play on first paint with CSS alone (for the headline at the top of a page). */
+  immediate?: boolean;
 }) {
   let n = 0;
   const words: ReactNode[] = [];
@@ -70,7 +73,10 @@ export function Split({
     }
   }
   return (
-    <As id={id} data-reveal className={`split ${className}`} style={{ ...style, ["--d" as string]: `${delay}ms` }}>
+    <As
+      id={id}
+      data-reveal={immediate ? undefined : ""}
+      className={`split ${immediate ? "split-now" : ""} ${className}`} style={{ ...style, ["--d" as string]: `${delay}ms` }}>
       <span className="sr-only">{plain(text)}</span>
       {words}
     </As>

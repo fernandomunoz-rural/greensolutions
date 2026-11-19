@@ -71,4 +71,5 @@ export function cropsFor(month: number): CalendarCrop[] {
 }
 
 export const ALL_PLATES = ALL.map((c) => c.plate);
+export const ALL_CROPS = ALL;
 export { MONTHS };

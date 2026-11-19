@@ -26,7 +26,7 @@ export function PageHero({
     <section className="pt-[clamp(8rem,16vw,13rem)]">
       <Container>
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
-          <Split as="h1" text={title} className="display text-[length:var(--text-display)] md:col-span-8" />
+          <Split as="h1" immediate text={title} className="display text-[length:var(--text-display)] md:col-span-8" />
           {intro ? (
             <p className="animate-fade-in max-w-[40ch] text-[length:var(--text-lead)] leading-snug text-ink-soft [animation-delay:400ms] md:col-span-4">
               {intro}

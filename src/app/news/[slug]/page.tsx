@@ -70,7 +70,7 @@ export default async function PostPage({
           </span>
           <span className="line-link">All news</span>
         </Link>
-        <Split as="h1" text={post.title} className="display mt-8 max-w-[20ch] text-[clamp(2.5rem,1.2rem+5vw,6.5rem)]" />
+        <Split as="h1" immediate text={post.title} className="display mt-8 max-w-[20ch] text-[clamp(2.5rem,1.2rem+5vw,6.5rem)]" />
         <div className="mt-10 grid gap-6 md:grid-cols-12 md:items-end">
           {post.excerpt ? (
             <p className="animate-fade-in max-w-[40ch] text-[length:var(--text-lead)] leading-snug text-ink-soft [animation-delay:350ms] md:col-span-7">

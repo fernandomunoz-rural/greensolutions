@@ -6,6 +6,7 @@ import { ScrollWords } from "@/components/motion/scroll-words";
 import { CountUp } from "@/components/motion/count-up";
 import { StickyPoints } from "@/components/motion/sticky-points";
 import { PlantingCalendar } from "@/components/motion/planting-calendar";
+import { CropCarousel } from "@/components/motion/crop-carousel";
 import { PostCard } from "@/components/cards";
 import { MemberTile } from "@/components/team-card";
 import { createClient } from "@/lib/supabase/server";
@@ -15,9 +16,7 @@ import { getPublicTeam } from "@/lib/team-load";
 import type { HomeSectionId, SiteContent } from "@/lib/content/schema";
 import { orderTeam, type TeamMember } from "@/lib/team";
 import { MONTHS } from "@/lib/calendar";
-import { crops } from "@/data/crops";
 import { PHOTOS } from "@/lib/photos";
-import { LeafMark } from "@/components/logo";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +58,7 @@ function Hero({ hero }: { hero: SiteContent["hero"] }) {
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(13,31,23,0.45)_0%,rgba(13,31,23,0.15)_35%,rgba(13,31,23,0.85)_100%)]" />
 
       <Container className="pb-[clamp(2.5rem,6vw,5rem)] pt-32">
-        <Split as="h1" text={hero.title} delay={250} className="display max-w-[16ch] text-[length:var(--text-display)]" />
+        <Split as="h1" immediate text={hero.title} delay={250} className="display max-w-[16ch] text-[length:var(--text-display)]" />
         <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
           {hero.intro ? (
             <p className="animate-fade-in max-w-[44ch] text-[length:var(--text-lead)] leading-snug text-white/80 [animation-delay:900ms] md:col-span-6">
@@ -90,29 +89,6 @@ function Hero({ hero }: { hero: SiteContent["hero"] }) {
         </div>
       </Container>
     </section>
-  );
-}
-
-/* A band of what grows here, moving without end. */
-function Marquee() {
-  const names = crops.map((c) => c.name);
-  const row = (hidden: boolean) => (
-    <div className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
-      {names.map((n, i) => (
-        <span key={`${n}-${i}`} className="flex items-center">
-          <span className={`px-8 ${i % 2 ? "font-serif italic" : "font-medium tracking-[-0.04em]"}`}>{n}</span>
-          <LeafMark className="h-[0.5em] w-[0.5em] text-field/60" />
-        </span>
-      ))}
-    </div>
-  );
-  return (
-    <div className="marquee overflow-hidden bg-accent py-6 text-[clamp(1.75rem,1.2rem+2vw,3.25rem)] leading-none text-ink">
-      <div className="marquee-track flex w-max">
-        {row(false)}
-        {row(true)}
-      </div>
-    </div>
   );
 }
 
@@ -279,7 +255,7 @@ export default async function HomePage() {
   return (
     <>
       <Hero hero={content.hero} />
-      <Marquee />
+      <CropCarousel />
       <Calendar />
       {content.home
         .filter((s) => s.visible)
