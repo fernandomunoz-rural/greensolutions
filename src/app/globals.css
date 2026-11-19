@@ -130,3 +130,68 @@ h3 {
   color: var(--color-forest);
   font-weight: 600;
 }
+.prose-gs :where(ol) {
+  margin-block: 1rem;
+  padding-left: 1.4rem;
+  list-style: decimal;
+}
+.prose-gs :where(ol > li) {
+  padding-left: 0.25rem;
+}
+.prose-gs :where(ol > li)::before {
+  content: none;
+}
+.prose-gs :where(a) {
+  color: var(--color-leaf);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.prose-gs :where(a:hover) {
+  color: var(--color-forest);
+}
+.prose-gs :where(blockquote) {
+  margin-block: 1.6rem;
+  border-left: 2px solid var(--color-leaf);
+  padding: 0.2rem 0 0.2rem 1.2rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--color-forest);
+}
+.prose-gs :where(blockquote p) {
+  color: inherit;
+}
+.prose-gs :where(img) {
+  margin-block: 1.8rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-line);
+}
+.prose-gs :where(hr) {
+  margin-block: 2.4rem;
+  border-color: var(--color-line);
+}
+.prose-gs :where(code) {
+  border-radius: 0.3rem;
+  background: rgba(15, 61, 46, 0.06);
+  padding: 0.1rem 0.35rem;
+  font-size: 0.9em;
+}
+.prose-gs :where(table) {
+  margin-block: 1.6rem;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.prose-gs :where(th, td) {
+  border-bottom: 1px solid var(--color-line);
+  padding: 0.6rem 0.5rem;
+  text-align: left;
+}
+.prose-gs :where(th) {
+  color: var(--color-forest);
+  font-weight: 600;
+}
+.prose-gs > :where(:first-child) {
+  margin-top: 0;
+}

@@ -66,3 +66,35 @@ The architecture is ready to grow:
 - **AI tooling**: the Plant Doctor matcher (`src/components/plant-doctor.tsx`)
   is a clean seam to plug in an AI-supported diagnosis backend.
 - **Commerce / accounts**: add routes under `src/app/` as needed.
+
+## Admin (`/admin`)
+
+Staff manage the site at `/admin` (spec: `docs/specs/001-admin-cms.md`).
+
+| Area | Who | What |
+| --- | --- | --- |
+| Articles | editors (own), admins (all) | Markdown editor with preview, images, cover, draft/published |
+| Site content | admins | Every text and image on the home page, footer and site settings. Draft → Preview → Publish, with History/Restore |
+| Team | admins | People, photos, groups, order, show/hide. Shown on the home page and `/team` |
+| Users & roles | admins | Make someone an editor or admin |
+
+**Database setup (once per Supabase project):** run `supabase/schema.sql`,
+`supabase/content.sql`, then `supabase/admin.sql` in the SQL editor. All are
+safe to re-run. Until `admin.sql` runs, the site shows its built-in text.
+
+Make yourself admin (SQL editor):
+`update public.profiles set role = 'admin' where id = (select id from auth.users where email = 'you@example.com');`
+
+### Local development with a real database
+
+```bash
+npx supabase@2 start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,supavisor,postgres-meta
+```
+
+Apply the three SQL files to the local database, put the local URL/keys in
+`.env.development.local` (app) and `.env.test.local` (tests), then:
+
+```bash
+npm run db:seed-local   # local test accounts: admin@ / editor@ / user@test.local
+npm test                # unit tests + row-level-security tests against the local DB
+```

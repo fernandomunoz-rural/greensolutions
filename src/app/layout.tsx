@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Schibsted_Grotesk, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { createClient } from "@/lib/supabase/server";
-import { site } from "@/data/site";
+import { PublicOnly } from "@/components/public-only";
+import { getSiteContent, getViewer, isPreviewing } from "@/lib/content/load";
 
 const display = Schibsted_Grotesk({
   variable: "--font-display",
@@ -20,68 +21,67 @@ const body = Hanken_Grotesk({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://greensolutions.bs"),
-  title: {
-    default: `${site.name} — ${site.tagline}`,
-    template: `%s · ${site.name}`,
-  },
-  description: site.description,
-  keywords: [
-    "Bahamas agriculture",
-    "gardening",
-    "plant health",
-    "growing guides",
-    "food security",
-    "Green Solutions",
-  ],
-  openGraph: {
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-    type: "website",
-    locale: "en_BS",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { settings } = await getSiteContent();
+  const full = settings.tagline ? `${settings.name} — ${settings.tagline}` : settings.name;
+  return {
+    metadataBase: new URL("https://greensolutions.bs"),
+    title: { default: full, template: `%s · ${settings.name}` },
+    description: settings.description,
+    keywords: [
+      "Bahamas agriculture",
+      "gardening",
+      "plant health",
+      "growing guides",
+      "food security",
+      settings.name,
+    ],
+    openGraph: {
+      title: full,
+      description: settings.description,
+      type: "website",
+      locale: "en_BS",
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Pull the header's profile bits in the same request. Tolerate a missing
-  // `profiles` row / table (e.g. before content.sql is run) so the shell never
-  // crashes.
-  let avatarUrl: string | null = null;
-  let fullName: string | null = null;
-  let isStaff = false;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name, avatar_url, role")
-      .eq("id", user.id)
-      .single();
-    avatarUrl = profile?.avatar_url ?? null;
-    fullName = profile?.full_name ?? null;
-    isStaff = profile?.role === "admin" || profile?.role === "editor";
-  }
+  // All three are cached per request and tolerate missing tables, so the
+  // shell never crashes before the database setup has been run.
+  const [viewer, content, previewing] = await Promise.all([getViewer(), getSiteContent(), isPreviewing()]);
 
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${body.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-paper text-ink">
-        <SiteHeader
-          isAuthed={!!user}
-          isStaff={isStaff}
-          avatarUrl={avatarUrl}
-          fullName={fullName}
-        />
+        {previewing ? (
+          <PublicOnly>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-amber-400 px-4 py-2 text-center text-sm font-semibold text-amber-950">
+              <span>Preview mode: you’re seeing the saved draft, not the live site.</span>
+              <span className="flex gap-3">
+                <Link href="/admin/content" className="underline underline-offset-2">
+                  Back to editor
+                </Link>
+                <a href="/admin/preview?off=1" className="underline underline-offset-2">
+                  Exit preview
+                </a>
+              </span>
+            </div>
+          </PublicOnly>
+        ) : null}
+        <PublicOnly>
+          <SiteHeader
+            isAuthed={!!viewer.userId}
+            isStaff={viewer.isStaff}
+            avatarUrl={viewer.avatarUrl}
+            fullName={viewer.fullName}
+          />
+        </PublicOnly>
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <PublicOnly>
+          <SiteFooter settings={content.settings} />
+        </PublicOnly>
       </body>
     </html>
   );

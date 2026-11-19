@@ -5,14 +5,9 @@ import { Container, Badge } from "@/components/ui";
 import { PostCard } from "@/components/cards";
 import { Avatar } from "@/components/avatar";
 import { Icon } from "@/components/icons";
+import { Markdown } from "@/components/markdown";
 import { createClient } from "@/lib/supabase/server";
-import {
-  POST_WITH_AUTHOR,
-  formatDate,
-  readMinutes,
-  toParagraphs,
-  type Post,
-} from "@/lib/posts";
+import { POST_WITH_AUTHOR, formatDate, readMinutes, type Post } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -62,8 +57,6 @@ export default async function PostPage({
     .order("published_at", { ascending: false })
     .limit(3);
   const more = (moreData ?? []) as unknown as Post[];
-
-  const paragraphs = toParagraphs(post.body);
 
   return (
     <article>
@@ -118,24 +111,13 @@ export default async function PostPage({
         </Container>
       ) : null}
 
-      {/* Body — rendered as escaped paragraphs, never raw HTML. */}
+      {/* Body — Markdown with raw HTML dropped (see components/markdown.tsx). */}
       <Container className={post.cover_url ? "py-10" : "py-14"}>
-        <div className="prose-gs mx-auto max-w-3xl text-[1.05rem]">
-          {paragraphs.length > 0 ? (
-            paragraphs.map((para, i) => (
-              <p key={i}>
-                {para.split("\n").map((line, j, arr) => (
-                  <span key={j}>
-                    {line}
-                    {j < arr.length - 1 ? <br /> : null}
-                  </span>
-                ))}
-              </p>
-            ))
-          ) : (
-            <p className="text-ink/50">This post has no content yet.</p>
-          )}
-        </div>
+        {post.body.trim() ? (
+          <Markdown source={post.body} className="mx-auto max-w-3xl text-[1.05rem]" />
+        ) : (
+          <p className="mx-auto max-w-3xl text-ink/50">This post has no content yet.</p>
+        )}
       </Container>
 
       {/* More posts */}

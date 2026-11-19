@@ -67,16 +67,3 @@ export function readMinutes(body: string): number {
   const words = body.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200));
 }
-
-/**
- * Split plain-text post bodies into paragraphs (blank line = new paragraph).
- * We render these as escaped React text — NOT dangerouslySetInnerHTML — so
- * user-authored content can never inject markup. Single newlines become <br>.
- */
-export function toParagraphs(body: string): string[] {
-  return body
-    .replace(/\r\n/g, "\n")
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-}

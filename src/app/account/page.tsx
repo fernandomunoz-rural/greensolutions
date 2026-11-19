@@ -56,7 +56,7 @@ export default async function AccountPage() {
         {/* Staff CTA into the CMS */}
         {isStaff ? (
           <Link
-            href="/studio"
+            href="/admin"
             className="group flex items-center justify-between rounded-2xl border border-forest/15 bg-gradient-to-br from-mint/25 to-mint/[0.08] px-6 py-5 transition-colors hover:border-forest/30"
           >
             <span className="flex items-center gap-4">
@@ -65,10 +65,10 @@ export default async function AccountPage() {
               </span>
               <span>
                 <span className="block font-display font-semibold text-forest">
-                  Content Studio
+                  Admin
                 </span>
                 <span className="block text-sm text-ink/60">
-                  Write and publish posts to the news feed.
+                  Articles, site content, team and users.
                 </span>
               </span>
             </span>

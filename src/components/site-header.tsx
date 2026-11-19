@@ -52,14 +52,14 @@ export function SiteHeader({
             <>
               {isStaff ? (
                 <Link
-                  href="/studio"
+                  href="/admin"
                   className={`rounded-md px-3.5 py-2 text-sm font-semibold transition-colors ${
-                    isActive("/studio")
+                    isActive("/admin")
                       ? "text-forest"
                       : "text-ink/60 hover:text-forest"
                   }`}
                 >
-                  Studio
+                  Admin
                 </Link>
               ) : null}
               <form action={signOut}>
@@ -138,11 +138,11 @@ export function SiteHeader({
               <>
                 {isStaff ? (
                   <Link
-                    href="/studio"
+                    href="/admin"
                     onClick={() => setOpen(false)}
                     className="block rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
                   >
-                    Studio
+                    Admin
                   </Link>
                 ) : null}
                 <Link

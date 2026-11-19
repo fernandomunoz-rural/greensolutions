@@ -20,7 +20,7 @@ export type NavItem = { label: string; href: string };
 export const primaryNav: NavItem[] = [
   { label: "News", href: "/news" },
   { label: "About", href: "/#about" },
-  { label: "Our team", href: "/#team" },
+  { label: "Team", href: "/team" },
 ];
 
 export const authNav = {

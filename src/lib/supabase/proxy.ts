@@ -39,7 +39,7 @@ export async function updateSession(request: NextRequest) {
   // Optimistic redirect: send signed-out visitors away from protected routes.
   const path = request.nextUrl.pathname;
   const isProtected =
-    path.startsWith("/account") || path.startsWith("/studio");
+    path.startsWith("/account") || path.startsWith("/studio") || path.startsWith("/admin");
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
