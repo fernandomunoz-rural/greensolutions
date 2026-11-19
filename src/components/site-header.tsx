@@ -9,6 +9,7 @@ import { Avatar } from "./avatar";
 import { signOut } from "@/app/auth/actions";
 import { primaryNav, authNav } from "@/data/site";
 
+/** A plain bar: wordmark, a few links, one action. No chrome. */
 export function SiteHeader({
   isAuthed = false,
   isStaff = false,
@@ -21,169 +22,115 @@ export function SiteHeader({
   fullName?: string | null;
 }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  // Remember which page the menu was opened on, so it closes on navigation.
+  const [openOn, setOpenOn] = useState<string | null>(null);
+  const open = openOn === pathname;
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href.replace(/#.*/, "")) && !href.includes("#"));
+  const link = (active: boolean) =>
+    `text-[length:var(--text-small)] transition-colors ${active ? "text-ink underline decoration-1 underline-offset-[6px]" : "text-ink hover:text-field"}`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-paper/80 backdrop-blur-md">
-      <div className="mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Logo className="text-[14px]" />
+    <header className="relative z-50 bg-ground">
+      <div className="mx-auto flex h-[4.5rem] w-full max-w-[1440px] items-center justify-between gap-6 px-[var(--margin)]">
+        <Logo className="text-[13px]" />
 
-        <nav className="hidden items-center gap-1 lg:flex">
+        <nav aria-label="Main" className="hidden items-center gap-8 md:flex">
           {primaryNav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`rounded-md px-3.5 py-2 text-sm font-medium transition-colors ${
-                isActive(item.href)
-                  ? "text-forest"
-                  : "text-ink/60 hover:text-forest"
-              }`}
-            >
+            <Link key={item.href} href={item.href} className={link(isActive(item.href))}>
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {isAuthed ? (
             <>
               {isStaff ? (
-                <Link
-                  href="/admin"
-                  className={`rounded-md px-3.5 py-2 text-sm font-semibold transition-colors ${
-                    isActive("/admin")
-                      ? "text-forest"
-                      : "text-ink/60 hover:text-forest"
-                  }`}
-                >
+                <Link href="/admin" className={link(isActive("/admin"))}>
                   Admin
                 </Link>
               ) : null}
               <form action={signOut}>
-                <button
-                  type="submit"
-                  className="rounded-md px-3.5 py-2 text-sm font-semibold text-ink/60 transition-colors hover:text-forest"
-                >
+                <button type="submit" className={link(false)}>
                   Log out
                 </button>
               </form>
-              <Link
-                href="/account"
-                aria-label="Your account"
-                className="rounded-full ring-offset-2 ring-offset-paper transition-shadow hover:ring-2 hover:ring-forest/20"
-              >
+              <Link href="/account" aria-label="Your account" className="press rounded-full">
                 <Avatar src={avatarUrl} name={fullName} className="h-9 w-9" />
               </Link>
             </>
           ) : (
             <>
-              <Link
-                href={authNav.login.href}
-                className="rounded-md px-3.5 py-2 text-sm font-semibold text-forest transition-colors hover:bg-forest/[0.05]"
-              >
+              <Link href={authNav.login.href} className={link(isActive(authNav.login.href))}>
                 {authNav.login.label}
               </Link>
-              <Button href={authNav.signup.href} size="md">
-                {authNav.signup.label}
-              </Button>
+              <Button href={authNav.signup.href}>{authNav.signup.label}</Button>
             </>
           )}
         </div>
 
+        <div className="flex items-center gap-4 md:hidden">
+          {isAuthed ? null : (
+            <Button href={authNav.signup.href} className="h-10 px-4">
+              {authNav.signup.label}
+            </Button>
+          )}
         <button
           type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
+          onClick={() => setOpenOn(open ? null : pathname)}
           aria-expanded={open}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-forest hover:bg-forest/5 lg:hidden"
+          aria-controls="site-menu"
+          className="press h-11 px-1 text-[length:var(--text-small)] text-ink underline decoration-1 underline-offset-[6px]"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            {open ? (
-              <>
-                <path d="M6 6l12 12" />
-                <path d="M18 6L6 18" />
-              </>
-            ) : (
-              <>
-                <path d="M4 7h16" />
-                <path d="M4 12h16" />
-                <path d="M4 17h16" />
-              </>
-            )}
-          </svg>
+          {open ? "Close" : "Menu"}
         </button>
+        </div>
       </div>
 
       {open ? (
-        <div className="border-t border-line bg-paper lg:hidden">
-          <div className="mx-auto max-w-6xl space-y-1 px-5 py-4 sm:px-8">
+        <nav id="site-menu" aria-label="Main" className="absolute inset-x-0 top-full z-50 bg-ground px-[var(--margin)] pb-8 pt-2 shadow-[var(--shadow-float)] md:hidden" /* taste-skill-ignore: the open menu floats over the page */>
+          <ul className="space-y-1">
             {primaryNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={`block rounded-lg px-4 py-3 text-base font-medium transition-colors ${
-                  isActive(item.href)
-                    ? "bg-forest/[0.06] text-forest"
-                    : "text-ink/75 hover:bg-forest/5"
-                }`}
-              >
-                {item.label}
-              </Link>
+              <li key={item.href}>
+                <Link href={item.href} onClick={() => setOpenOn(null)} className="display block py-2 text-[2.25rem]">
+                  {item.label}
+                </Link>
+              </li>
             ))}
+            {isAuthed && isStaff ? (
+              <li>
+                <Link href="/admin" onClick={() => setOpenOn(null)} className="display block py-2 text-[2.25rem]">
+                  Admin
+                </Link>
+              </li>
+            ) : null}
+          </ul>
+          <div className="mt-6 flex flex-wrap items-center gap-5">
             {isAuthed ? (
               <>
-                {isStaff ? (
-                  <Link
-                    href="/admin"
-                    onClick={() => setOpen(false)}
-                    className="block rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
-                  >
-                    Admin
-                  </Link>
-                ) : null}
-                <Link
-                  href="/account"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
-                >
-                  <Avatar src={avatarUrl} name={fullName} className="h-7 w-7 text-xs" />
-                  Account
+                <Link href="/account" onClick={() => setOpenOn(null)} className="flex items-center gap-3">
+                  <Avatar src={avatarUrl} name={fullName} className="h-9 w-9 text-xs" />
+                  Your account
                 </Link>
                 <form action={signOut}>
-                  <button
-                    type="submit"
-                    onClick={() => setOpen(false)}
-                    className="block w-full rounded-lg px-4 py-3 text-left text-base font-semibold text-ink/75 hover:bg-forest/5"
-                  >
+                  <button type="submit" className="underline decoration-1 underline-offset-4">
                     Log out
                   </button>
                 </form>
               </>
             ) : (
               <>
-                <Link
-                  href={authNav.login.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-4 py-3 text-base font-semibold text-forest hover:bg-forest/5"
-                >
-                  {authNav.login.label}
-                </Link>
-                <Button
-                  href={authNav.signup.href}
-                  size="lg"
-                  className="mt-2 w-full"
-                  onClick={() => setOpen(false)}
-                >
+                <Button href={authNav.signup.href} size="lg" onClick={() => setOpenOn(null)} className="w-full">
                   {authNav.signup.label}
                 </Button>
+                <Link href={authNav.login.href} onClick={() => setOpenOn(null)} className="underline decoration-1 underline-offset-4">
+                  {authNav.login.label}
+                </Link>
               </>
             )}
           </div>
-        </div>
+        </nav>
       ) : null}
     </header>
   );

@@ -84,7 +84,7 @@ describe("changedKeys / describeKey", () => {
     after.hero.title = "Changed";
     after.home = [...after.home].reverse();
     expect(changedKeys(DEFAULT_CONTENT, after)).toEqual(["hero.title", "home"]);
-    expect(describeKey("hero.title")).toBe("Home · Hero → Title");
+    expect(describeKey("hero.title")).toBe("Home · Hero → Main sentence");
   });
 });
 
@@ -142,5 +142,21 @@ describe("team helpers", () => {
 describe("slugify", () => {
   it("is url safe", () => {
     expect(slugify("Hello, World! It's 2026")).toBe("hello-world-its-2026");
+  });
+});
+
+describe("planting calendar seasons", () => {
+  it("reads ranges, wrap-around ranges and year-round", async () => {
+    const { seasonMonths } = await import("@/lib/season");
+    expect(seasonMonths("Year-round")).toHaveLength(12);
+    expect(seasonMonths("Mar – Oct")).toEqual([2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(seasonMonths("Oct – May")).toEqual([9, 10, 11, 0, 1, 2, 3, 4]);
+    expect(seasonMonths("whenever")).toEqual([]);
+  });
+
+  it("every crop in the data has a readable season", async () => {
+    const { seasonMonths } = await import("@/lib/season");
+    const { crops } = await import("@/data/crops");
+    for (const c of crops) expect(seasonMonths(c.season).length, c.name).toBeGreaterThan(0);
   });
 });

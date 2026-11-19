@@ -1,26 +1,26 @@
 import type { ReactNode } from "react";
-import { Container, Eyebrow } from "./ui";
+import { Container } from "./ui";
 
+/** Inner-page opening: the title large, one sentence under it. No label. */
 export function PageHero({
-  eyebrow,
   title,
   intro,
   children,
 }: {
-  eyebrow: string;
+  /** Ignored: small labels above headings are against the house rules. */
+  eyebrow?: string;
   title: ReactNode;
   intro?: ReactNode;
   children?: ReactNode;
 }) {
   return (
-    <section className="border-b border-forest-700/40 bg-forest text-mint-100">
-      <Container className="py-16 sm:py-24">
-        <Eyebrow>{eyebrow}</Eyebrow>
-        <h1 className="font-display mt-5 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-[3.25rem]">
+    <section>
+      <Container className="pb-16 pt-[clamp(3rem,10vw,8rem)]">
+        <h1 className="animate-fade-in display max-w-[18ch] text-[2.35rem] sm:text-[clamp(3rem,1rem+6.5vw,8.5rem)]">
           {title}
         </h1>
         {intro ? (
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-mint-100/80">
+          <p className="animate-fade-in mt-8 max-w-[44ch] text-[length:var(--text-lead)] leading-snug text-ink">
             {intro}
           </p>
         ) : null}

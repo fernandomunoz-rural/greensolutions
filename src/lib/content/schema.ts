@@ -59,24 +59,22 @@ export type SiteContent = {
     youtube: string;
   };
   hero: {
-    eyebrow: string;
     title: string;
     intro: string;
     primaryLabel: string;
     primaryHref: string;
     secondaryLabel: string;
     secondaryHref: string;
-    image: string;
   };
   stats: { items: { value: string; label: string }[] };
   about: {
-    eyebrow: string;
     title: string;
     intro: string;
+    image: string;
     items: { title: string; body: string }[];
   };
-  news: { eyebrow: string; title: string; intro: string };
-  team: { eyebrow: string; title: string; intro: string };
+  news: { title: string; intro: string };
+  team: { title: string; intro: string };
   cta: {
     title: string;
     body: string;
@@ -131,28 +129,21 @@ export const SECTIONS: SectionDef[] = [
   {
     id: "hero",
     label: "Home · Hero",
-    description: "The first thing visitors see at the top of the home page.",
+    description:
+      "The top of the home page. The big line is the planting calendar (what to plant this month); these texts sit under it.",
     fields: [
-      t("eyebrow", "Small label above the title", 60),
-      long("title", "Title", 120, { required: true }),
+      long("title", "Main sentence", 120, { required: true, help: "The page title for search engines too. One sentence." }),
       long("intro", "Intro", 300),
       t("primaryLabel", "Main button text", 40),
       link("primaryHref", "Main button link"),
       t("secondaryLabel", "Second button text", 40),
       link("secondaryHref", "Second button link"),
-      {
-        kind: "image",
-        key: "image",
-        label: "Hero image (optional)",
-        max: 500,
-        help: "A wide photo works best. Without one, a drawn illustration is shown.",
-      },
     ],
   },
   {
     id: "stats",
     label: "Home · Numbers",
-    description: "The row of key figures under the hero.",
+    description: "Key figures, written into one paragraph. Each label should finish the sentence its number starts.",
     fields: [
       {
         kind: "list",
@@ -167,11 +158,17 @@ export const SECTIONS: SectionDef[] = [
   {
     id: "about",
     label: "Home · What we do",
-    description: "What Green Solutions does, as numbered points.",
+    description: "What Green Solutions does. The picture zooms in once per point as visitors scroll.",
     fields: [
-      t("eyebrow", "Small label", 40),
-      t("title", "Title", 100, { required: true }),
+      t("title", "Title", 60, { required: true, help: "Short: it is split around the picture." }),
       long("intro", "Intro", 300),
+      {
+        kind: "image",
+        key: "image",
+        label: "Picture (optional)",
+        max: 500,
+        help: "A photo of the islands. Without one, an aerial of Staniel Cay, Exuma is used.",
+      },
       {
         kind: "list",
         key: "items",
@@ -186,13 +183,13 @@ export const SECTIONS: SectionDef[] = [
     id: "news",
     label: "Home · Latest news",
     description: "Heading over the latest articles. The section only shows once an article is published.",
-    fields: [t("eyebrow", "Small label", 40), t("title", "Title", 100, { required: true }), long("intro", "Intro", 300)],
+    fields: [t("title", "Title", 100, { required: true }), long("intro", "Intro", 300)],
   },
   {
     id: "team",
     label: "Home · Team",
     description: "Heading over the team. People are edited under Team.",
-    fields: [t("eyebrow", "Small label", 40), t("title", "Title", 100, { required: true }), long("intro", "Intro", 300)],
+    fields: [t("title", "Title", 100, { required: true }), long("intro", "Intro", 300)],
   },
   {
     id: "cta",

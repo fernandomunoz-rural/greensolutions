@@ -15,7 +15,6 @@ export const DEFAULT_CONTENT: SiteContent = {
     youtube: "https://youtube.com/@greensolutions",
   },
   hero: {
-    eyebrow: "Agriculture platform for The Bahamas",
     title: "Practical tools for growing food across the islands.",
     intro:
       "Clear guidance and planning tools for gardeners, growers, and students — built for Bahamian soil, climate, and supply chains.",
@@ -23,21 +22,20 @@ export const DEFAULT_CONTENT: SiteContent = {
     primaryHref: "/signup",
     secondaryLabel: "Read the latest",
     secondaryHref: "/news",
-    image: "",
   },
   stats: {
     items: [
-      { value: "90%", label: "of Bahamian food is imported" },
-      { value: "700+", label: "islands & cays with growing potential" },
-      { value: "12", label: "months of warm growing season" },
-      { value: "1", label: "clear place to start learning" },
+      { value: "90%", label: "of the food on Bahamian tables is shipped in" },
+      { value: "700+", label: "islands and cays, and most have room to grow something" },
+      { value: "12", label: "months of growing weather, every year" },
+      { value: "1", label: "free place to learn how, built for these islands" },
     ],
   },
   about: {
-    eyebrow: "What we do",
     title: "Guidance you can act on",
     intro:
       "We organize agricultural knowledge into clear, usable steps and tools — tuned to the realities of island growing.",
+    image: "",
     items: [
       {
         title: "Reduce confusion",
@@ -58,18 +56,16 @@ export const DEFAULT_CONTENT: SiteContent = {
     ],
   },
   news: {
-    eyebrow: "News",
     title: "Latest updates",
     intro: "Guidance, announcements, and field notes from the team.",
   },
   team: {
-    eyebrow: "Team",
-    title: "A connected team with clear roles",
+    title: "The people behind the guidance",
     intro:
       "Each office owns a defined part of the work — from applied agriculture to technology and outreach.",
   },
   cta: {
-    title: "Create an account and start growing",
+    title: "Your first bed starts this month.",
     body: "Free while we build. Set up in under a minute.",
     primaryLabel: "Create free account",
     primaryHref: "/signup",

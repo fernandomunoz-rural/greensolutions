@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Container, Button } from "@/components/ui";
+import { Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
 import { TeamProfile } from "@/components/team-card";
 import { getSiteContent } from "@/lib/content/load";
 import { getPublicTeam } from "@/lib/team-load";
+import Image from "next/image";
 import { groupTeam } from "@/lib/team";
+import stanielCay from "@/assets/places/flying-over-stanlel-cay-3425540229.jpg";
 
 export const dynamic = "force-dynamic";
 
@@ -19,41 +21,41 @@ export default async function TeamPage() {
 
   return (
     <>
-      <PageHero eyebrow={content.team.eyebrow || "Team"} title={content.team.title} intro={content.team.intro} />
-      <Container className="py-14 sm:py-20">
+      <PageHero title={content.team.title} intro={content.team.intro} />
+      {/* The islands the team works for. Not the team's own land. */}
+      <figure className="px-[var(--margin)]">
+        <div className="relative mx-auto aspect-[21/9] max-w-[1440px] overflow-hidden bg-ground-2 max-sm:aspect-[4/3]">
+          <Image src={stanielCay} alt="Aerial view of Staniel Cay in the Exumas" fill sizes="100vw" className="object-cover" style={{ objectPosition: "50% 30%" }} priority />
+        </div>
+        <figcaption className="mx-auto mt-2 max-w-[1440px] text-[length:var(--text-small)] text-ink-soft">Staniel Cay, Exuma. Photo: cogdogblog, CC0.</figcaption>
+      </figure>
+      <Container className="pb-[clamp(5rem,10vw,9rem)]">
         {groups.length === 0 ? (
-          <p className="text-center text-ink/60">Team profiles are coming soon.</p>
+          <p className="text-ink">Team profiles are coming soon.</p>
         ) : (
-          <div className="space-y-16">
-            {groups.map(({ group, members: list }) => (
-              <section key={group} aria-labelledby={`g-${group}`}>
-                {groups.length > 1 ? (
-                  <h2 id={`g-${group}`} className="font-display mb-6 text-2xl font-semibold text-forest">
-                    {group}
-                  </h2>
-                ) : (
-                  <h2 id={`g-${group}`} className="sr-only">
-                    {group}
-                  </h2>
-                )}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {list.map((m) => (
-                    <TeamProfile key={m.id} member={m} />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+          groups.map(({ group, members: list }) => (
+            <section key={group} aria-labelledby={`g-${group}`} className="mt-24">
+              <h2
+                id={`g-${group}`}
+                className={groups.length > 1 ? "display text-[length:var(--text-head)] lg:ml-[calc(2/12*100%)]" : "sr-only"}
+              >
+                {group}
+              </h2>
+              {list.map((m, i) => (
+                <TeamProfile key={m.id} member={m} index={i} />
+              ))}
+            </section>
+          ))
         )}
 
         {content.settings.email ? (
-          <div className="mt-20 flex flex-col items-start justify-between gap-5 rounded-2xl border border-line bg-white p-8 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="font-display text-xl font-semibold text-forest">Want to work with us?</h2>
-              <p className="mt-1 text-sm text-ink/60">We&rsquo;re always glad to hear from growers, students and partners.</p>
-            </div>
-            <Button href={`mailto:${content.settings.email}`}>Get in touch</Button>
-          </div>
+          <p className="mt-16 text-[length:var(--text-lead)] lg:ml-[calc(2/12*100%)]">
+            Want to grow with us?{" "}
+            <a href={`mailto:${content.settings.email}`} className="underline decoration-1 underline-offset-4 hover:text-field">
+              Write to {content.settings.email}
+            </a>
+            .
+          </p>
         ) : null}
       </Container>
     </>

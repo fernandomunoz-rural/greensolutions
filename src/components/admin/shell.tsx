@@ -58,7 +58,7 @@ export function AdminShell({
         if (items.length === 0) return null;
         return (
           <div key={group.heading}>
-            <p className="px-3 text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-ink/40">
+            <p className="px-3 text-xs text-ink/55">
               {group.heading}
             </p>
             <ul className="mt-2 space-y-0.5">
@@ -71,7 +71,7 @@ export function AdminShell({
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        active ? "bg-forest text-white" : "text-ink/70 hover:bg-forest/[0.05] hover:text-forest"
+                        active ? "bg-field text-white" : "text-ink/75 hover:bg-white hover:text-ink"
                       }`}
                     >
                       <I className="h-[1.1rem] w-[1.1rem]" />
@@ -84,7 +84,7 @@ export function AdminShell({
           </div>
         );
       })}
-      <div className="mt-auto space-y-0.5 border-t border-line pt-5">
+      <div className="mt-auto space-y-0.5 pt-5">
         <Link
           href="/"
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink/70 hover:bg-forest/[0.05] hover:text-forest"
@@ -114,24 +114,24 @@ export function AdminShell({
   );
 
   return (
-    <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[15.5rem_1fr]">
+    <div className="admin min-h-screen bg-ground lg:grid lg:grid-cols-[15.5rem_1fr]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-white lg:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-line px-6">
+      <aside className="sticky top-0 hidden h-screen flex-col bg-ground-2 lg:flex">
+        <div className="flex h-16 items-center gap-2 px-6">
           <Logo className="text-[13px]" />
-          <span className="rounded bg-forest/[0.07] px-1.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider text-forest">
+          <span className="rounded bg-forest/[0.07] px-1.5 py-0.5 text-[0.7rem] font-medium text-ink">
             Admin
           </span>
         </div>
         {nav}
-        <div className="border-t border-line p-3">{who}</div>
+        <div className="p-3">{who}</div>
       </aside>
 
       {/* Mobile top bar + drawer */}
-      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-white/90 px-4 backdrop-blur lg:hidden">
+      <div className="sticky top-0 z-40 flex h-14 items-center justify-between bg-ground-2 px-4 lg:hidden">
         <div className="flex items-center gap-2">
           <Logo className="text-[12px]" />
-          <span className="rounded bg-forest/[0.07] px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-forest">
+          <span className="rounded bg-forest/[0.07] px-1.5 py-0.5 text-[0.7rem] font-medium text-ink">
             Admin
           </span>
         </div>
@@ -153,7 +153,7 @@ export function AdminShell({
             onClick={() => setOpen(false)}
           />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-white shadow-xl">
-            <div className="flex h-14 items-center justify-between border-b border-line px-4">
+            <div className="flex h-14 items-center justify-between px-4">
               {who}
               <button
                 type="button"

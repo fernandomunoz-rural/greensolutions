@@ -1,115 +1,83 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
-export function Container({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`mx-auto w-full max-w-6xl px-5 sm:px-8 ${className}`}>
-      {children}
-    </div>
-  );
+/** One grid margin for the whole site; large things run to the edges. */
+export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`mx-auto w-full max-w-[1440px] px-[var(--margin)] ${className}`}>{children}</div>;
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-leaf">
-      <span className="h-px w-6 bg-leaf/50" />
-      {children}
-    </span>
-  );
+/**
+ * Kept so older pages still compile, but renders nothing: small labels above
+ * headings are against the house rules. Put the information in the heading.
+ */
+export function Eyebrow(_props: { children?: ReactNode }) {
+  void _props;
+  return null;
 }
 
 export function SectionHeading({
-  eyebrow,
   title,
   intro,
   align = "left",
   tone = "dark",
 }: {
+  /** Ignored (see Eyebrow). */
   eyebrow?: string;
   title: ReactNode;
   intro?: ReactNode;
   align?: "left" | "center";
   tone?: "dark" | "light";
 }) {
-  const titleColor = tone === "light" ? "text-white" : "text-forest";
-  const introColor = tone === "light" ? "text-mint-100/85" : "text-ink/65";
+  const titleColor = tone === "light" ? "text-on-field" : "text-ink";
+  const introColor = tone === "light" ? "text-on-field-soft" : "text-ink";
   return (
-    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
-      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-      <h2
-        className={`font-display mt-4 text-3xl font-semibold leading-[1.1] sm:text-[2.6rem] ${titleColor}`}
-      >
-        {title}
-      </h2>
-      {intro ? (
-        <p className={`mt-4 text-[1.05rem] leading-relaxed ${introColor}`}>{intro}</p>
-      ) : null}
+    <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
+      <h2 className={`display text-[length:var(--text-head)] ${titleColor}`}>{title}</h2>
+      {intro ? <p className={`mt-5 max-w-[46ch] text-[length:var(--text-body)] ${introColor}`}>{intro}</p> : null}
     </div>
   );
 }
 
 type ButtonProps = {
-  variant?: "primary" | "secondary" | "ghost" | "ochre";
+  variant?: "primary" | "secondary" | "ghost" | "ochre" | "accent";
   size?: "md" | "lg";
 } & (
   | ({ href: string } & Omit<ComponentProps<typeof Link>, "className">)
   | ({ href?: undefined } & ComponentProps<"button">)
 );
 
+// One button shape for the whole site: flat, one fill, 4px corners.
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper focus-visible:ring-forest disabled:opacity-40 disabled:pointer-events-none";
+  "press inline-flex items-center justify-center gap-2 rounded-[4px] font-medium transition-colors duration-200 disabled:opacity-40 disabled:pointer-events-none";
 
 const buttonVariants: Record<string, string> = {
-  primary: "bg-forest text-white hover:bg-forest-700",
-  ochre: "bg-leaf text-white hover:brightness-105",
-  secondary: "bg-white text-forest ring-1 ring-line hover:bg-forest/[0.03]",
-  ghost: "bg-transparent text-forest ring-1 ring-forest/15 hover:bg-forest/[0.04]",
+  primary: "bg-field text-on-field hover:bg-ink",
+  ochre: "bg-field text-on-field hover:bg-ink",
+  accent: "bg-accent text-field hover:bg-white",
+  secondary: "bg-ground-2 text-ink hover:bg-ink hover:text-ground",
+  ghost: "bg-ground-2 text-ink hover:bg-ink hover:text-ground",
 };
 
 const buttonSizes: Record<string, string> = {
-  md: "px-5 py-2.5 text-sm",
-  lg: "px-6 py-3 text-[0.95rem]",
+  md: "h-11 px-5 text-[length:var(--text-small)]",
+  lg: "h-14 px-7 text-[length:var(--text-body)]",
 };
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  className = "",
-  ...props
-}: ButtonProps & { className?: string }) {
+export function Button({ variant = "primary", size = "md", className = "", ...props }: ButtonProps & { className?: string }) {
   const cls = `${buttonBase} ${buttonVariants[variant]} ${buttonSizes[size]} ${className}`;
   if (props.href !== undefined) {
     const { href, ...rest } = props;
     return <Link href={href} className={cls} {...rest} />;
   }
-  const { href: _omit, ...rest } = props;
-  return <button className={cls} {...(rest as ComponentProps<"button">)} />;
+  const rest = { ...props } as ComponentProps<"button"> & { href?: undefined };
+  delete rest.href;
+  return <button className={cls} {...rest} />;
 }
 
-export function Badge({
-  children,
-  tone = "leaf",
-}: {
-  children: ReactNode;
-  tone?: "leaf" | "ochre" | "sand" | "mint" | "neutral";
-}) {
-  const tones: Record<string, string> = {
-    leaf: "bg-leaf/10 text-leaf ring-leaf/15",
-    ochre: "bg-ochre/10 text-ochre ring-ochre/15",
-    sand: "bg-sand/40 text-forest ring-forest/10",
-    mint: "bg-mint/20 text-forest ring-forest/10",
-    neutral: "bg-forest/[0.06] text-forest ring-forest/10",
-  };
+/** Sentence-case marker, a step in tone, no outline. */
+export function Badge({ children }: { children: ReactNode; tone?: string }) {
   return (
-    <span
-      className={`inline-flex items-center rounded-md px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide ring-1 ${tones[tone]}`}
-    >
+    <span className="inline-flex items-center rounded-[4px] bg-ground-2 px-2.5 py-1 text-[length:var(--text-small)] text-ink">
       {children}
     </span>
   );

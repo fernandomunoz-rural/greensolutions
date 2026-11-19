@@ -93,7 +93,7 @@ export default async function AdminHome() {
                   {c.title}
                   <I className="h-5 w-5 text-leaf" />
                 </span>
-                <span className="font-display mt-3 block text-3xl font-semibold text-forest">{c.value}</span>
+                <span className="mt-3 block font-serif text-3xl text-ink">{c.value}</span>
                 <span className="mt-1 block text-xs text-ink/50">{c.note}</span>
               </Link>
             );

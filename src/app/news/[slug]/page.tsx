@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Container, Badge } from "@/components/ui";
+import { Container } from "@/components/ui";
 import { PostCard } from "@/components/cards";
 import { Avatar } from "@/components/avatar";
-import { Icon } from "@/components/icons";
 import { Markdown } from "@/components/markdown";
 import { createClient } from "@/lib/supabase/server";
 import { POST_WITH_AUTHOR, formatDate, readMinutes, type Post } from "@/lib/posts";
@@ -60,76 +59,56 @@ export default async function PostPage({
 
   return (
     <article>
-      {/* Header */}
-      <header className="border-b border-forest-700/40 bg-forest text-mint-100">
-        <Container className="py-16">
-          <Link
-            href="/news"
-            className="inline-flex items-center gap-2 text-sm font-medium text-mint hover:text-white"
-          >
-            <Icon.ArrowLeft className="h-4 w-4" /> Back to News
-          </Link>
-          <div className="mt-7 max-w-3xl">
-            {post.category ? <Badge tone="mint">{post.category}</Badge> : null}
-            <h1 className="font-display mt-5 text-3xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl">
-              {post.title}
-            </h1>
-            {post.excerpt ? (
-              <p className="mt-5 text-lg text-mint-100/80">{post.excerpt}</p>
-            ) : null}
-            <div className="mt-7 flex items-center gap-3">
-              <Avatar
-                src={post.author?.avatar_url}
-                name={post.author?.full_name}
-                className="h-10 w-10 text-sm"
-              />
-              <div className="text-sm text-mint-100/70">
-                <span className="block font-semibold text-mint">
-                  {post.author?.full_name ?? "Green Solutions"}
-                </span>
-                <span>
-                  {formatDate(post.published_at)} · {readMinutes(post.body)} min
-                  read
-                </span>
-              </div>
-            </div>
+      <Container className="pt-[clamp(2.5rem,7vw,6rem)]">
+        <h1 className="animate-fade-in display max-w-[22ch] text-[2.1rem] sm:text-[clamp(2.5rem,1rem+4.6vw,6rem)]">
+          {post.title}
+        </h1>
+        <div className="mt-10 grid gap-8 lg:grid-cols-12">
+          <div className="flex items-center gap-3 text-[length:var(--text-small)] text-ink-soft lg:col-span-3 lg:flex-col lg:items-start">
+            <Avatar src={post.author?.avatar_url} name={post.author?.full_name} className="h-11 w-11 text-sm" />
+            <p>
+              <span className="block text-ink">{post.author?.full_name ?? "Green Solutions"}</span>
+              {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
+              <Link href="/news" className="mt-1 block text-ink underline decoration-1 underline-offset-4 hover:text-field">
+                All news
+              </Link>
+            </p>
           </div>
-        </Container>
-      </header>
+          {post.excerpt ? (
+            <p className="max-w-[36ch] text-[length:var(--text-lead)] leading-snug text-ink lg:col-span-9">
+              {post.excerpt}
+            </p>
+          ) : null}
+        </div>
+      </Container>
 
-      {/* Cover */}
       {post.cover_url ? (
-        <Container className="pt-14">
-          <div className="mx-auto max-w-3xl overflow-hidden rounded-xl border border-line">
-            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded storage URL */}
-            <img
-              src={post.cover_url}
-              alt=""
-              className="w-full object-cover"
-            />
-          </div>
-        </Container>
+        <div data-reveal className="mt-14 px-[var(--margin)]">
+          {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded storage URL */}
+          <img src={post.cover_url} alt="" className="mx-auto max-h-[80svh] w-full max-w-[1440px] object-cover" />
+        </div>
       ) : null}
 
       {/* Body — Markdown with raw HTML dropped (see components/markdown.tsx). */}
-      <Container className={post.cover_url ? "py-10" : "py-14"}>
-        {post.body.trim() ? (
-          <Markdown source={post.body} className="mx-auto max-w-3xl text-[1.05rem]" />
-        ) : (
-          <p className="mx-auto max-w-3xl text-ink/50">This post has no content yet.</p>
-        )}
+      <Container className="py-[clamp(3rem,7vw,6rem)]">
+        <div data-reveal className="lg:ml-[calc(3/12*100%)]">
+          {post.body.trim() ? (
+            <Markdown source={post.body} className="max-w-[68ch]" />
+          ) : (
+            <p className="text-ink-soft">This post has no content yet.</p>
+          )}
+        </div>
       </Container>
 
-      {/* More posts */}
       {more.length > 0 ? (
-        <section className="border-t border-line bg-white py-16">
+        <section className="bg-ground-2 py-[clamp(5rem,10vw,8rem)]">
           <Container>
-            <h2 className="font-display text-2xl font-semibold text-forest">
-              More from the field
-            </h2>
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {more.map((p) => (
-                <PostCard key={p.id} post={p} />
+            <h2 data-reveal className="display text-[length:var(--text-head)]">More from the field</h2>
+            <div className="mt-12 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+              {more.map((p, i) => (
+                <div key={p.id} data-reveal style={{ ["--i" as string]: i }}>
+                  <PostCard post={p} />
+                </div>
               ))}
             </div>
           </Container>

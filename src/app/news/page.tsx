@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
 import { PostCard } from "@/components/cards";
-import { Icon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/server";
-import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
+import { POST_WITH_AUTHOR, formatDate, readMinutes, type Post } from "@/lib/posts";
 
 export const metadata: Metadata = {
-  title: "News & Stories",
-  description:
-    "Updates, growing stories, and announcements from the Green Solutions community across The Bahamas.",
+  title: "News & stories",
+  description: "Updates, growing stories, and announcements from the Green Solutions community across The Bahamas.",
 };
 
 // Always reflect the latest published posts.
@@ -28,33 +27,47 @@ async function getPublishedPosts(): Promise<Post[]> {
 
 export default async function NewsPage() {
   const posts = await getPublishedPosts();
+  const [lead, ...rest] = posts;
 
   return (
     <>
-      <PageHero
-        eyebrow="News & stories"
-        title="From the field"
-        intro="Updates, growing stories, and announcements from the Green Solutions community. Fresh guidance for gardeners and growers across The Bahamas."
-      />
-      <Container className="py-14">
-        {posts.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
+      <PageHero title="From the field" intro="Updates, growing stories and announcements for gardeners and growers across The Bahamas." />
+      <Container className="pb-[clamp(5rem,10vw,9rem)]">
+        {!lead ? (
+          <p className="text-[length:var(--text-lead)] text-ink">The first stories are on their way. Check back soon.</p>
         ) : (
-          <div className="mx-auto max-w-md rounded-xl border border-line bg-white px-6 py-16 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-forest/[0.06] text-forest">
-              <Icon.Newspaper className="h-6 w-6" />
-            </span>
-            <p className="font-display mt-4 text-lg font-semibold text-forest">
-              No posts yet
-            </p>
-            <p className="mt-1.5 text-sm text-ink/60">
-              The first stories are on their way. Check back soon.
-            </p>
-          </div>
+          <>
+            {/* The newest story at full width: picture left, words right. */}
+            <Link href={`/news/${lead.slug}`} className="group grid gap-8 lg:grid-cols-12 lg:items-end">
+              <div className="relative aspect-[4/3] overflow-hidden bg-ground-2 lg:col-span-7">
+                {lead.cover_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- storage URL
+                  <img src={lead.cover_url} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
+                ) : (
+                  <span className="display flex h-full w-full items-end bg-field p-8 text-[length:var(--text-head)] text-accent">
+                    {lead.category ?? "News"}
+                  </span>
+                )}
+              </div>
+              <div className="lg:col-span-5">
+                <h2 className="display text-[clamp(2rem,1rem+2.4vw,3rem)] leading-[1.05] group-hover:text-field">{lead.title}</h2>
+                <p className="mt-3 text-[length:var(--text-small)] text-ink-soft">
+                  {[lead.category, formatDate(lead.published_at), `${readMinutes(lead.body)} min read`].filter(Boolean).join(" · ")}
+                </p>
+                {lead.excerpt ? <p className="mt-4 text-[length:var(--text-lead)] leading-snug text-ink">{lead.excerpt}</p> : null}
+              </div>
+            </Link>
+
+            {rest.length ? (
+              <div className="mt-[clamp(5rem,10vw,8rem)] grid gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+                {rest.map((p, i) => (
+                  <div key={p.id} data-reveal style={{ ["--i" as string]: i % 3 }}>
+                    <PostCard post={p} />
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </>
         )}
       </Container>
     </>

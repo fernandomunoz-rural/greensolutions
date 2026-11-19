@@ -3,16 +3,16 @@ import type { ReactNode } from "react";
 import { Icon } from "@/components/icons";
 
 export const inputCls =
-  "mt-1.5 w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-[0.95rem] text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-forest focus:ring-2 focus:ring-forest/15 aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200";
-export const labelCls = "text-sm font-semibold text-forest";
+  "mt-1.5 w-full rounded-[4px] border border-line bg-white px-3.5 py-2.5 text-[0.95rem] text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-forest focus:ring-2 focus:ring-forest/15 aria-[invalid=true]:border-red-400 aria-[invalid=true]:ring-red-200";
+export const labelCls = "text-sm font-medium text-ink";
 export const helpCls = "mt-1 text-xs text-ink/50";
-export const cardCls = "rounded-xl border border-line bg-white";
+export const cardCls = "rounded-[6px] bg-white";
 export const btnPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-lg bg-forest px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-forest-700 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-[4px] bg-field px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50";
 export const btnSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 py-2.5 text-sm font-semibold text-forest transition-colors hover:bg-forest/[0.04] disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-[4px] bg-ground-2 px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:opacity-50";
 export const btnDanger =
-  "inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-[4px] bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50";
 export const iconBtn =
   "inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink/55 transition-colors hover:bg-forest/[0.06] hover:text-forest disabled:pointer-events-none disabled:opacity-30";
 
@@ -41,7 +41,7 @@ export function AdminPage({
       ) : null}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-display text-2xl font-semibold text-forest sm:text-[1.75rem]">{title}</h1>
+          <h1 className="text-[2rem] leading-tight text-ink sm:text-[2.5rem]">{title}</h1>
           {intro ? <p className="mt-1 max-w-2xl text-sm text-ink/60">{intro}</p> : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
@@ -67,7 +67,7 @@ export function EmptyState({
       <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-forest/[0.06] text-forest">
         <I className="h-6 w-6" />
       </span>
-      <p className="font-display mt-4 text-lg font-semibold text-forest">{title}</p>
+      <p className="mt-4 font-serif text-xl text-ink">{title}</p>
       <p className="mx-auto mt-1.5 max-w-sm text-sm text-ink/60">{body}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>

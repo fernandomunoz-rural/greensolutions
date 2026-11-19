@@ -25,7 +25,13 @@ const components: Components = {
       <img src={src} alt={alt ?? ""} loading="lazy" />
     ) : null,
   // Keep the page's single <h1> (the article title): demote body headings.
-  h1: ({ children }) => <h2>{children}</h2>,
+  h1: ({ children }) => <h2 data-reveal>{children}</h2>,
+  // Each block rises in as it is reached (see components/reveal.tsx).
+  h2: ({ children }) => <h2 data-reveal>{children}</h2>,
+  p: ({ children }) => <p data-reveal>{children}</p>,
+  ul: ({ children }) => <ul data-reveal>{children}</ul>,
+  ol: ({ children }) => <ol data-reveal>{children}</ol>,
+  blockquote: ({ children }) => <blockquote data-reveal>{children}</blockquote>,
 };
 
 export function Markdown({ source, className = "" }: { source: string; className?: string }) {
