@@ -66,9 +66,9 @@ const buttonBase =
   "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper focus-visible:ring-forest disabled:opacity-40 disabled:pointer-events-none";
 
 const buttonVariants: Record<string, string> = {
-  primary: "bg-forest text-paper hover:bg-forest-700",
-  ochre: "bg-ochre text-white hover:brightness-105",
-  secondary: "bg-mint text-forest hover:brightness-[1.03]",
+  primary: "bg-forest text-white hover:bg-forest-700",
+  ochre: "bg-leaf text-white hover:brightness-105",
+  secondary: "bg-white text-forest ring-1 ring-line hover:bg-forest/[0.03]",
   ghost: "bg-transparent text-forest ring-1 ring-forest/15 hover:bg-forest/[0.04]",
 };
 

@@ -4,7 +4,7 @@ import { Icon } from "@/components/icons";
 import { PostCard } from "@/components/cards";
 import { createClient } from "@/lib/supabase/server";
 import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
-import { site, stats, values, offices, problems } from "@/data/site";
+import { stats, values, offices } from "@/data/site";
 
 async function getLatestPosts(): Promise<Post[]> {
   const supabase = await createClient();
@@ -18,15 +18,6 @@ async function getLatestPosts(): Promise<Post[]> {
   return (data ?? []) as unknown as Post[];
 }
 
-// Tools that are temporarily disabled while the project is in early design.
-// Shown on the home page as a roadmap so the scope is clear without linking out.
-const comingSoon = [
-  { name: "Plant Doctor", note: "Diagnose common plant problems by symptom." },
-  { name: "Learning Hub", note: "Plain-language guides for every growing stage." },
-  { name: "Crop Guides", note: "What grows well in Bahamian conditions." },
-  { name: "Resources", note: "Videos, downloads, and quick answers." },
-];
-
 function initials(name: string) {
   return name
     .split(" ")
@@ -38,87 +29,39 @@ function initials(name: string) {
 
 export default async function HomePage() {
   const latestPosts = await getLatestPosts();
+
   return (
     <>
-      {/* HERO */}
-      <section className="border-b border-forest-700/40 bg-forest text-mint-100">
+      {/* HERO — light, type-led */}
+      <section className="border-b border-line bg-white">
         <Container className="py-20 sm:py-28">
-          <div className="grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="animate-fade-in">
-              <Eyebrow>Agriculture for The Bahamas</Eyebrow>
-              <h1 className="font-display mt-6 text-[2.6rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-6xl">
-                Grow food with confidence, anywhere in the islands.
-              </h1>
-              <p className="mt-7 max-w-xl text-lg leading-relaxed text-mint-100/80">
-                {site.description}
-              </p>
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Button href="/signup" variant="secondary" size="lg">
-                  Create free account
-                </Button>
-                <Button
-                  href="/login"
-                  size="lg"
-                  className="bg-transparent text-mint-100 ring-1 ring-white/20 hover:bg-white/[0.06]"
-                >
-                  Log in
-                </Button>
-              </div>
-              <p className="mt-12 border-t border-white/10 pt-6 text-sm font-medium tracking-wide text-mint/80">
-                {site.motto}
-              </p>
-            </div>
-
-            {/* Roadmap panel — signals where the project is heading */}
-            <div className="animate-fade-in">
-              <div className="rounded-2xl border border-white/10 bg-white p-7 text-ink shadow-[var(--shadow-soft)]">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-forest/[0.06] text-forest">
-                    <Icon.Leaf className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-leaf">
-                      On the way
-                    </p>
-                    <p className="font-display text-lg font-semibold text-forest">
-                      Tools we&apos;re building
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-5 text-sm leading-relaxed text-ink/65">
-                  We&apos;re starting small on purpose. Create an account to be
-                  first in line as each tool goes live.
-                </p>
-                <ul className="mt-6 space-y-2.5">
-                  {comingSoon.map((t) => (
-                    <li
-                      key={t.name}
-                      className="flex items-start gap-3 rounded-lg border border-line px-4 py-3"
-                    >
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-leaf" />
-                      <span>
-                        <span className="block text-sm font-semibold text-forest">
-                          {t.name}
-                        </span>
-                        <span className="block text-xs text-ink/55">
-                          {t.note}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          <div className="max-w-3xl">
+            <Eyebrow>Agriculture platform for The Bahamas</Eyebrow>
+            <h1 className="font-display mt-6 text-4xl font-semibold leading-[1.03] tracking-tight text-forest sm:text-6xl">
+              Practical tools for growing food across the islands.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink/60">
+              Clear guidance and planning tools for gardeners, growers, and
+              students — built for Bahamian soil, climate, and supply chains.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button href="/signup" size="lg">
+                Create free account
+              </Button>
+              <Button href="/news" variant="secondary" size="lg">
+                Read the latest
+              </Button>
             </div>
           </div>
         </Container>
       </section>
 
       {/* STATS */}
-      <section className="border-b border-line bg-white">
-        <Container className="py-12">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
+      <section className="border-b border-line bg-paper">
+        <Container className="py-14">
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-10 lg:grid-cols-4">
             {stats.map((s) => (
-              <div key={s.label}>
+              <div key={s.label} className="border-l border-line pl-5">
                 <dt className="font-display text-4xl font-semibold tracking-tight text-forest">
                   {s.value}
                 </dt>
@@ -133,19 +76,19 @@ export default async function HomePage() {
 
       {/* LATEST NEWS — only shows once posts are published */}
       {latestPosts.length > 0 ? (
-        <section className="border-b border-line bg-paper py-24">
+        <section className="border-b border-line bg-white py-20 sm:py-24">
           <Container>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <SectionHeading
-                eyebrow="From the field"
-                title="Latest news & stories"
-                intro="Fresh guidance, updates, and growing stories from the community."
+                eyebrow="News"
+                title="Latest updates"
+                intro="Guidance, announcements, and field notes from the team."
               />
               <Link
                 href="/news"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-leaf"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-leaf hover:text-forest"
               >
-                View all news
+                View all
                 <Icon.ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -158,24 +101,24 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      {/* WHY WE EXIST */}
-      <section className="py-24">
+      {/* WHAT WE DO */}
+      <section id="about" className="scroll-mt-20 border-b border-line bg-paper py-20 sm:py-24">
         <Container>
           <SectionHeading
-            eyebrow="Why we exist"
-            title="Clear, local guidance you can actually use"
-            intro="Agriculture in The Bahamas faces real pressure — imported food, high costs, limited land. Green Solutions turns that complexity into simple, confident next steps."
+            eyebrow="What we do"
+            title="Guidance you can act on"
+            intro="We organize agricultural knowledge into clear, usable steps and tools — tuned to the realities of island growing."
           />
-          <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-14 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
             {values.map((v, i) => (
-              <div key={v.title} className="border-t border-forest/15 pt-5">
+              <div key={v.title} className="bg-white p-6">
                 <span className="font-display text-sm font-semibold text-leaf">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h3 className="font-display mt-3 text-lg font-semibold text-forest">
+                <h3 className="font-display mt-3 text-base font-semibold text-forest">
                   {v.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink/65">
+                <p className="mt-2 text-sm leading-relaxed text-ink/60">
                   {v.body}
                 </p>
               </div>
@@ -184,68 +127,13 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* ABOUT — problem & approach */}
-      <section id="about" className="scroll-mt-20 border-y border-line bg-white py-24">
-        <Container>
-          <div className="grid gap-12 lg:grid-cols-2">
-            <div>
-              <Eyebrow>The problem</Eyebrow>
-              <h2 className="font-display mt-4 text-2xl font-semibold text-forest sm:text-3xl">
-                Why this matters
-              </h2>
-              <p className="mt-3 text-ink/65">
-                Agriculture in The Bahamas faces real, stacked challenges. Many
-                people want to grow food or learn but don&apos;t have simple,
-                reliable support they can use.
-              </p>
-              <ul className="mt-6 space-y-2.5">
-                {problems.map((p) => (
-                  <li
-                    key={p}
-                    className="flex items-start gap-3 rounded-xl border border-line bg-paper p-4"
-                  >
-                    <span className="mt-2 h-px w-3 shrink-0 bg-ochre" />
-                    <span className="text-sm text-ink/75">{p}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <Eyebrow>Our approach</Eyebrow>
-              <h2 className="font-display mt-4 text-2xl font-semibold text-forest sm:text-3xl">
-                What we&apos;re doing about it
-              </h2>
-              <p className="mt-3 text-ink/65">
-                We&apos;re starting small on purpose — organizing knowledge,
-                designing tools, and exploring how technology, including AI, can
-                support learning. We expand only after ideas are tested and shown
-                to be useful.
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {values.map((v) => (
-                  <div
-                    key={v.title}
-                    className="rounded-xl border border-line bg-paper p-5"
-                  >
-                    <h3 className="font-display font-semibold text-forest">
-                      {v.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-ink/65">{v.body}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
       {/* TEAM */}
-      <section id="team" className="scroll-mt-20 py-24">
+      <section id="team" className="scroll-mt-20 bg-white py-20 sm:py-24">
         <Container>
           <SectionHeading
-            eyebrow="The living structure"
-            title="A connected team, each with a clear role"
-            intro="Green Solutions operates as a connected system. Each office has a clear role, and all work together in a continuous cycle of learning, support, and development."
+            eyebrow="Team"
+            title="A connected team with clear roles"
+            intro="Each office owns a defined part of the work — from applied agriculture to technology and outreach."
           />
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {offices.map((o) => (
@@ -262,7 +150,7 @@ export default async function HomePage() {
                     <p className="text-xs text-ink/55">{o.name}</p>
                   </div>
                 </div>
-                <p className="mt-4 text-sm leading-relaxed text-ink/65">
+                <p className="mt-4 text-sm leading-relaxed text-ink/60">
                   {o.role}
                 </p>
               </div>
@@ -271,43 +159,29 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* CURRENT STAGE + MOTTO */}
-      <Container className="pb-24">
-        <div className="rounded-2xl bg-forest px-8 py-16 text-center text-mint-100 sm:px-16">
-          <Eyebrow>Current stage</Eyebrow>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-mint-100/80">
-            The project is in the planning and early design stage — gathering
-            resources, seeking mentors, building a small interdisciplinary team,
-            and defining clear goals and next steps.
-          </p>
-          <p className="font-display mt-8 text-2xl font-medium text-mint">
-            {site.motto}
-          </p>
-        </div>
-      </Container>
-
-      {/* CTA */}
-      <section className="pb-24">
+      {/* CTA — dark anchor */}
+      <section className="border-t border-line bg-forest py-20 sm:py-24">
         <Container>
-          <div className="rounded-2xl border border-line bg-white px-8 py-16 text-center sm:px-16">
-            <Eyebrow>Join the project</Eyebrow>
-            <h2 className="font-display mx-auto mt-5 max-w-2xl text-3xl font-semibold leading-tight text-forest sm:text-[2.5rem]">
-              Create an account and grow with us
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-ink/65">
-              Whether you grow, teach, mentor, or just want to learn — there is a
-              place for you here. Set up your account in under a minute.
-            </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <Button href="/signup" size="lg">
+          <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
+            <div className="max-w-xl">
+              <h2 className="font-display text-3xl font-semibold leading-tight text-white sm:text-4xl">
+                Create an account and start growing
+              </h2>
+              <p className="mt-4 text-mint-100/70">
+                Free while we build. Set up in under a minute.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button href="/signup" variant="secondary" size="lg">
                 Create free account
               </Button>
-              <Link
+              <Button
                 href="/login"
-                className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-[0.95rem] font-semibold text-forest ring-1 ring-forest/15 transition-colors hover:bg-forest/[0.04]"
+                size="lg"
+                className="bg-transparent text-white ring-1 ring-white/20 hover:bg-white/[0.06]"
               >
-                I already have an account
-              </Link>
+                Log in
+              </Button>
             </div>
           </div>
         </Container>

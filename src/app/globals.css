@@ -5,25 +5,39 @@
   Brand palette from the official guidelines; restrained, type-led layout.
 */
 @theme {
-  /* Brand colours */
-  --color-forest: #04473a; /* primary / dark green     */
-  --color-forest-700: #063f35;
-  --color-mint: #6dc99d; /* secondary / light green  */
-  --color-mint-100: #eef4f0;
-  --color-leaf: #2f7d4e; /* mid green (slightly deeper for contrast) */
-  --color-ochre: #af772e; /* accent / harvest brown   */
-  --color-sand: #dbd9b4; /* warm neutral             */
-  --color-paper: #f6f6f3; /* off-white background      */
-  --color-ink: #1b211f; /* near-black text           */
-  --color-line: #e4e4dd; /* hairline borders          */
+  /* ------------------------------------------------------------------ */
+  /* Neutral-corporate palette. Base is a cool slate/gray monochrome;    */
+  /* green survives only as a restrained accent (`leaf`). Token NAMES are */
+  /* kept from the original so every component recolors from this file    */
+  /* alone — "forest" now reads as near-black slate, not green.           */
+  /* ------------------------------------------------------------------ */
+
+  /* Brand dark — the deep green used for dark sections, headings, and
+     primary buttons. Reads near-black but green, not blue. */
+  --color-forest: #0f3d2e; /* deep green — headings, buttons, dark bands */
+  --color-forest-700: #17493a; /* lighter green — hover on the above       */
+
+  /* Light-on-dark text + the one bright green accent */
+  --color-mint: #34d399; /* emerald-400 — small accent on dark surfaces  */
+  --color-mint-100: #dfe9e3; /* soft green-gray — body text on dark        */
+  --color-leaf: #0b7a52; /* emerald-700 — THE accent: eyebrows, links     */
+
+  /* Neutral utility tones (kept desaturated, no blue) */
+  --color-ochre: #4b5952; /* slate-green  — was harvest brown            */
+  --color-sand: #cdd6d1; /* light green-gray — was warm neutral         */
+
+  /* Page surfaces + hairlines (neutral, faint green — no blue tint) */
+  --color-paper: #f5f7f5; /* near-white background                        */
+  --color-ink: #17211d; /* near-black neutral text                      */
+  --color-line: #e4e7e3; /* hairline borders                            */
 
   /* Typography */
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
 
   /* Restrained depth */
-  --shadow-card: 0 1px 2px rgba(27, 33, 31, 0.04);
-  --shadow-soft: 0 18px 50px -30px rgba(4, 71, 58, 0.35);
+  --shadow-card: 0 1px 2px rgba(15, 61, 46, 0.05);
+  --shadow-soft: 0 1px 3px rgba(15, 61, 46, 0.07), 0 12px 32px -20px rgba(15, 61, 46, 0.2);
 }
 
 html {
@@ -75,7 +89,7 @@ h3 {
 .prose-gs :where(p) {
   margin-block: 1rem;
   line-height: 1.8;
-  color: #353f3b;
+  color: #3a463f;
 }
 .prose-gs :where(h2) {
   font-family: var(--font-display);
@@ -101,7 +115,7 @@ h3 {
   margin-block: 0.5rem;
   padding-left: 1rem;
   line-height: 1.7;
-  color: #353f3b;
+  color: #3a463f;
 }
 .prose-gs :where(li)::before {
   content: "";

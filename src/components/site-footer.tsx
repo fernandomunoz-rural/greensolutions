@@ -23,9 +23,6 @@ export function SiteFooter() {
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-mint-100/70">
               {site.description}
             </p>
-            <p className="mt-5 font-display text-[0.95rem] font-medium text-mint">
-              {site.motto}
-            </p>
           </div>
 
           <div>
