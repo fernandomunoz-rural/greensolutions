@@ -1,48 +1,56 @@
 import type { ReactNode } from "react";
-import { Board, PhotoTile } from "./ui";
-import type { Place } from "@/lib/places";
+import { Container } from "./ui";
+import { Split } from "./motion/split";
+import { ParallaxImage } from "./motion/parallax-image";
+import type { Photo } from "@/lib/photos";
 
-/** Inner-page opening: a green title tile, with a photograph tile beside it when given. */
+/**
+ * Inner-page opening: the title large on the limestone ground, the intro
+ * beside it, then (when given) a wide photograph that drifts as it scrolls.
+ */
 export function PageHero({
   title,
   intro,
   children,
-  place,
+  photo,
 }: {
   /** Ignored: small labels above headings are against the house rules. */
   eyebrow?: string;
-  title: ReactNode;
+  /** Plain text; *asterisks* set words in the serif italic. */
+  title: string;
   intro?: ReactNode;
   children?: ReactNode;
-  place?: Place;
+  photo?: Photo;
 }) {
   return (
-    <Board className="pt-2">
-      <div
-        className={`col-span-2 flex min-h-[clamp(18rem,40vw,30rem)] flex-col justify-end rounded-[8px] bg-field p-6 text-on-field ${
-          place ? "md:col-span-7" : "md:col-span-12"
-        }`}
-      >
-        <h1 className="animate-fade-in display max-w-[18ch] text-[length:var(--text-display)]">{title}</h1>
-        {intro ? (
-          <p className="animate-fade-in mt-5 max-w-[48ch] text-[length:var(--text-lead)] leading-snug text-on-field-soft">
-            {intro}
-          </p>
-        ) : null}
+    <section className="pt-[clamp(8rem,16vw,13rem)]">
+      <Container>
+        <div className="grid gap-8 md:grid-cols-12 md:items-end">
+          <Split as="h1" text={title} className="display text-[length:var(--text-display)] md:col-span-8" />
+          {intro ? (
+            <p className="animate-fade-in max-w-[40ch] text-[length:var(--text-lead)] leading-snug text-ink-soft [animation-delay:400ms] md:col-span-4">
+              {intro}
+            </p>
+          ) : null}
+        </div>
         {children}
-      </div>
-      {place ? (
-        <PhotoTile
-          src={place.image}
-          alt={place.alt}
-          caption={place.caption}
-          position={place.position}
-          priority
-          shutter
-          sizes="(min-width: 768px) 42vw, 100vw"
-          className="col-span-2 aspect-[4/3] md:col-span-5 md:aspect-auto"
-        />
+      </Container>
+      {photo ? (
+        <Container className="mt-[clamp(3rem,7vw,6rem)]">
+          <figure>
+            <ParallaxImage
+              src={photo.image}
+              alt={photo.alt}
+              position={photo.position}
+              priority
+              sizes="100vw"
+              strength={0.1}
+              className="aspect-[4/3] rounded-[20px] md:aspect-[21/9]"
+            />
+            <figcaption className="mt-3 text-[length:var(--text-small)] text-ink-soft">Photo: {photo.credit}</figcaption>
+          </figure>
+        </Container>
       ) : null}
-    </Board>
+    </section>
   );
 }

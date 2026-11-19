@@ -1,175 +1,61 @@
-import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
-import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
+import { Split } from "./motion/split";
 
-/*
-  The board: every public page is a 12-column grid of filled tiles with
-  8px gaps, one 8px radius and text inset 24px from the tile's edge.
-  On a phone the board has two columns.
-*/
-
-/** Older pages' plain column. Same outer edge as the board. */
+/** The page's one column: max 1440px, the same side gutter everywhere. */
 export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`mx-auto w-full max-w-[1680px] px-[var(--margin)] ${className}`}>{children}</div>;
+  return <div className={`mx-auto w-full max-w-[1440px] px-[var(--gutter)] ${className}`}>{children}</div>;
 }
 
-/** A row of tiles. Children set their own spans (`col-span-2 md:col-span-6`…). */
-export function Board({
-  children,
-  className = "",
-  as: As = "div",
-  ...rest
-}: {
-  children: ReactNode;
-  className?: string;
-  as?: "div" | "section";
-} & Omit<HTMLAttributes<HTMLElement>, "className" | "children">) {
-  return (
-    <As
-      className={`mx-auto grid w-full max-w-[1680px] grid-cols-2 gap-2 px-2 sm:px-3 md:grid-cols-12 ${className}`}
-      {...rest}
-    >
-      {children}
-    </As>
-  );
-}
-
-export type TileTone = "ground" | "paper" | "field" | "sea" | "accent" | "ink";
-
-export const TILE_TONES: Record<TileTone, string> = {
-  ground: "bg-ground-2 text-ink",
-  paper: "bg-tile text-ink",
-  field: "bg-field text-on-field",
-  sea: "bg-sea text-white",
-  accent: "bg-accent text-field",
-  ink: "bg-ink text-ground",
-};
-
-/** Muted text that still reads on each tone. */
-export const TILE_SOFT: Record<TileTone, string> = {
-  ground: "text-ink-soft",
-  paper: "text-ink-soft",
-  field: "text-on-field-soft",
-  sea: "text-on-sea-soft",
-  accent: "text-field",
-  ink: "text-on-field-soft",
-};
-
-/** One flat tile. Text sits top-left on the 24px inset. */
-export function Tile({
-  tone = "ground",
-  className = "",
-  children,
-  as: As = "div",
-  ...rest
-}: {
-  tone?: TileTone;
-  className?: string;
-  children?: ReactNode;
-  as?: "div" | "article" | "section" | "aside" | "li";
-} & Omit<HTMLAttributes<HTMLElement>, "className" | "children">) {
-  return (
-    <As data-reveal className={`relative overflow-hidden rounded-[8px] p-6 ${TILE_TONES[tone]} ${className}`} {...rest}>
-      {children}
-    </As>
-  );
-}
-
-const STRIPS = {
-  field: "bg-field text-on-field",
-  sea: "bg-sea text-white",
-  accent: "bg-accent text-field",
-  ground: "bg-ground-2 text-ink",
-} as const;
-
-/**
- * A photograph covering a whole tile, with a thin colour strip fused to
- * its foot carrying the caption and credit.
- */
-export function PhotoTile({
-  src,
-  alt,
-  caption,
-  strip = "field",
-  className = "",
-  sizes = "(min-width: 768px) 50vw, 100vw",
-  position,
-  priority = false,
-  shutter = false,
-  blend = false,
-}: {
-  src: StaticImageData | string;
-  alt: string;
-  caption?: ReactNode;
-  strip?: keyof typeof STRIPS;
-  className?: string;
-  sizes?: string;
-  position?: string;
-  priority?: boolean;
-  shutter?: boolean;
-  /** Multiply onto the tile (for engravings on white paper). */
-  blend?: boolean;
-}) {
-  const imgCls = `absolute inset-0 h-full w-full object-cover ${blend ? "mix-blend-multiply" : ""} ${shutter ? "shutter" : ""}`;
-  return (
-    <figure data-reveal className={`relative isolate overflow-hidden rounded-[8px] bg-ground-2 ${className}`}>
-      {typeof src === "string" ? (
-        // eslint-disable-next-line @next/next/no-img-element -- uploaded storage URL
-        <img src={src} alt={alt} className={imgCls} style={{ objectPosition: position }} loading={priority ? undefined : "lazy"} />
-      ) : (
-        <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className={imgCls} style={{ objectPosition: position }} />
-      )}
-      {caption ? (
-        <figcaption
-          className={`absolute inset-x-0 bottom-0 z-10 flex min-h-8 items-center px-4 py-1.5 text-[length:var(--text-small)] leading-tight ${STRIPS[strip]}`}
-        >
-          <span className="truncate">{caption}</span>
-        </figcaption>
-      ) : null}
-    </figure>
-  );
-}
-
-/** A section's opening line on the bare ground, aligned with tile text. */
+/** A section's opening: headline with a word-by-word entrance, an intro, and an optional link. */
 export function SectionHead({
   id,
   title,
   intro,
   action,
+  tone = "dark",
 }: {
   id?: string;
-  title: ReactNode;
+  title: string;
   intro?: ReactNode;
   action?: ReactNode;
+  tone?: "dark" | "light";
 }) {
   return (
-    <div className="col-span-2 flex flex-wrap items-end justify-between gap-x-8 gap-y-4 px-4 pb-4 pt-16 sm:px-6 md:col-span-12 lg:pt-24">
-      <div>
-        <h2 id={id} data-reveal className="display max-w-[22ch] text-[length:var(--text-head)]">
-          {title}
-        </h2>
+    <div className="grid gap-8 md:grid-cols-12 md:items-end">
+      <Split id={id} text={title} className={`display text-[length:var(--text-head)] md:col-span-8 ${tone === "light" ? "text-white" : ""}`} />
+      <div className="md:col-span-4 md:justify-self-end">
         {intro ? (
-          <p data-reveal className="mt-3 max-w-[56ch] text-ink">
+          <p data-reveal className={`max-w-[38ch] ${tone === "light" ? "text-on-field-soft" : "text-ink-soft"}`}>
             {intro}
           </p>
         ) : null}
+        {action ? (
+          <div data-reveal style={{ ["--i" as string]: 1 }} className={intro ? "mt-6" : ""}>
+            {action}
+          </div>
+        ) : null}
       </div>
-      {action}
     </div>
   );
 }
 
-/** "See all →" style link used at the end of a section head. */
-export function MoreLink({ href, children }: { href: string; children: ReactNode }) {
+/** Arrow that slides on hover; used in buttons and links. */
+export function Arrow({ className = "" }: { className?: string }) {
   return (
-    <Link
-      href={href}
-      className="press group inline-flex h-12 items-center gap-2 rounded-[8px] bg-ground-2 px-5 font-medium text-ink transition-colors hover:bg-ink hover:text-ground"
-    >
-      {children}
-      <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
-        →
-      </span>
+    <span aria-hidden="true" className={`relative inline-block h-[1em] w-[1.1em] shrink-0 overflow-hidden align-middle ${className}`}>
+      <span className="absolute inset-0 flex items-center justify-center leading-none transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-full">→</span>
+      <span className="absolute inset-0 flex -translate-x-full items-center justify-center leading-none transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-0">→</span>
+    </span>
+  );
+}
+
+/** "All news →" style text link with a drawn underline. */
+export function ArrowLink({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {
+  return (
+    <Link href={href} className={`group inline-flex items-center gap-2 font-medium ${className}`}>
+      <span className="line-link">{children}</span>
+      <Arrow />
     </Link>
   );
 }
@@ -183,6 +69,7 @@ export function Eyebrow(_props: { children?: ReactNode }) {
   return null;
 }
 
+/** Older pages' section heading. */
 export function SectionHeading({
   title,
   intro,
@@ -197,7 +84,7 @@ export function SectionHeading({
   tone?: "dark" | "light";
 }) {
   const titleColor = tone === "light" ? "text-on-field" : "text-ink";
-  const introColor = tone === "light" ? "text-on-field-soft" : "text-ink";
+  const introColor = tone === "light" ? "text-on-field-soft" : "text-ink-soft";
   return (
     <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
       <h2 className={`display text-[length:var(--text-head)] ${titleColor}`}>{title}</h2>
@@ -207,46 +94,70 @@ export function SectionHeading({
 }
 
 type ButtonProps = {
-  variant?: "primary" | "secondary" | "ghost" | "ochre" | "accent" | "dark";
+  variant?: "primary" | "secondary" | "ghost" | "ochre" | "accent" | "light" | "outline-light";
   size?: "md" | "lg";
+  /** Show the sliding arrow after the label. */
+  arrow?: boolean;
 } & (
   | ({ href: string } & Omit<ComponentProps<typeof Link>, "className">)
   | ({ href?: undefined } & ComponentProps<"button">)
 );
 
-// One button shape for the whole site: flat, one fill, the board's 8px radius.
+// One button shape for the whole site: a flat pill.
 const buttonBase =
-  "press inline-flex items-center justify-center gap-2 rounded-[8px] font-medium transition-colors duration-200 disabled:opacity-40 disabled:pointer-events-none";
+  "press group inline-flex items-center justify-center gap-3 rounded-full font-medium transition-colors duration-300 disabled:opacity-40 disabled:pointer-events-none";
 
 const buttonVariants: Record<string, string> = {
   primary: "bg-field text-on-field hover:bg-ink",
   ochre: "bg-field text-on-field hover:bg-ink",
-  accent: "bg-accent text-field hover:bg-white",
-  dark: "bg-field-2 text-on-field hover:bg-ink",
+  accent: "bg-accent text-ink hover:bg-white",
+  light: "bg-white text-ink hover:bg-accent",
+  "outline-light": "bg-white/10 text-white backdrop-blur-md hover:bg-white hover:text-ink",
   secondary: "bg-ground-2 text-ink hover:bg-ink hover:text-ground",
   ghost: "bg-ground-2 text-ink hover:bg-ink hover:text-ground",
 };
 
 const buttonSizes: Record<string, string> = {
   md: "h-11 px-5 text-[length:var(--text-small)]",
-  lg: "h-13 px-7 text-[length:var(--text-body)]",
+  lg: "h-14 px-7 text-[length:var(--text-body)]",
 };
 
-export function Button({ variant = "primary", size = "md", className = "", ...props }: ButtonProps & { className?: string }) {
+export function Button({
+  variant = "primary",
+  size = "md",
+  arrow = false,
+  className = "",
+  children,
+  ...props
+}: ButtonProps & { className?: string; children?: ReactNode }) {
   const cls = `${buttonBase} ${buttonVariants[variant]} ${buttonSizes[size]} ${className}`;
+  const inner = (
+    <>
+      {children}
+      {arrow ? <Arrow /> : null}
+    </>
+  );
   if (props.href !== undefined) {
     const { href, ...rest } = props;
-    return <Link href={href} className={cls} {...rest} />;
+    return (
+      <Link href={href} className={cls} {...rest}>
+        {inner}
+      </Link>
+    );
   }
   const rest = { ...props } as ComponentProps<"button"> & { href?: undefined };
   delete rest.href;
-  return <button className={cls} {...rest} />;
+  return (
+    <button className={cls} {...rest}>
+      {inner}
+    </button>
+  );
 }
 
 /** Sentence-case marker, a step in tone, no outline. */
 export function Badge({ children }: { children: ReactNode; tone?: string }) {
   return (
-    <span className="inline-flex items-center rounded-[8px] bg-ground-2 px-2.5 py-1 text-[length:var(--text-small)] text-ink">
+    <span className="inline-flex items-center rounded-full bg-ground-2 px-3 py-1 text-[length:var(--text-small)] text-ink">
       {children}
     </span>
   );

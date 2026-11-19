@@ -19,6 +19,7 @@ export type NavItem = { label: string; href: string };
 // are disabled, the nav points to sections of the home page only.
 export const primaryNav: NavItem[] = [
   { label: "News", href: "/news" },
+  { label: "What to plant", href: "/#calendar" },
   { label: "About", href: "/#about" },
   { label: "Team", href: "/team" },
 ];

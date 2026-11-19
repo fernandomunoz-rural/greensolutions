@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Board, MoreLink, PhotoTile, SectionHead } from "@/components/ui";
-import { PostCard, fallbackPlate } from "@/components/cards";
+import { ArrowLink, Container } from "@/components/ui";
+import { PostCard, PostPicture } from "@/components/cards";
 import { Avatar } from "@/components/avatar";
 import { Markdown } from "@/components/markdown";
+import { Split } from "@/components/motion/split";
 import { createClient } from "@/lib/supabase/server";
 import { POST_WITH_AUTHOR, formatDate, readMinutes, type Post } from "@/lib/posts";
 
@@ -56,74 +57,67 @@ export default async function PostPage({
     .order("published_at", { ascending: false })
     .limit(3);
   const more = (moreData ?? []) as unknown as Post[];
-  const plate = fallbackPlate(post.slug);
 
   return (
     <article>
-      <Board className="pt-2">
-        <header
-          className={`col-span-2 flex min-h-[clamp(18rem,36vw,28rem)] flex-col justify-end rounded-[8px] bg-field p-6 text-on-field ${
-            "md:col-span-7"
-          }`}
+      <Container className="pt-[clamp(8rem,14vw,12rem)]">
+        <Link
+          href="/news"
+          className="group animate-fade-in inline-flex items-center gap-2 text-[length:var(--text-small)] font-medium text-ink-soft hover:text-ink"
         >
-          <h1 className="animate-fade-in display max-w-[22ch] text-[clamp(2.1rem,1.2rem+3.4vw,4.5rem)]">{post.title}</h1>
+          <span aria-hidden="true" className="transition-transform group-hover:-translate-x-1">
+            ←
+          </span>
+          <span className="line-link">All news</span>
+        </Link>
+        <Split as="h1" text={post.title} className="display mt-8 max-w-[20ch] text-[clamp(2.5rem,1.2rem+5vw,6.5rem)]" />
+        <div className="mt-10 grid gap-6 md:grid-cols-12 md:items-end">
           {post.excerpt ? (
-            <p className="animate-fade-in mt-5 max-w-[48ch] text-[length:var(--text-lead)] leading-snug text-on-field-soft">
+            <p className="animate-fade-in max-w-[40ch] text-[length:var(--text-lead)] leading-snug text-ink-soft [animation-delay:350ms] md:col-span-7">
               {post.excerpt}
             </p>
           ) : null}
-        </header>
-        {post.cover_url ? (
-          <PhotoTile src={post.cover_url} alt="" priority shutter className="col-span-2 aspect-[4/3] md:col-span-5 md:aspect-auto" />
-        ) : (
-          // No cover yet: the same botanical plate its tile shows in lists.
-          <PhotoTile
-            src={plate.image}
-            alt=""
-            caption={plate.caption}
-            strip="ground"
-            position={plate.focus}
-            blend
-            priority
-            className="col-span-2 aspect-[4/3] bg-tile! md:col-span-5 md:aspect-auto"
-          />
-        )}
-
-        <aside className="col-span-2 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:col-span-3">
-          <div className="flex items-center gap-3 md:sticky md:top-6">
+          <div className="animate-fade-in flex items-center gap-3 [animation-delay:500ms] md:col-span-5 md:justify-self-end">
             <Avatar src={post.author?.avatar_url} name={post.author?.full_name} className="h-11 w-11 shrink-0 text-sm" />
             <p className="text-[length:var(--text-small)] text-ink-soft">
-              <span className="block font-semibold text-ink">{post.author?.full_name ?? "Green Solutions"}</span>
+              <span className="block font-medium text-ink">{post.author?.full_name ?? "Green Solutions"}</span>
               {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
             </p>
           </div>
-          <Link
-            href="/news"
-            className="mt-6 inline-flex text-[length:var(--text-small)] font-medium text-field underline decoration-1 underline-offset-4 hover:text-ink"
-          >
-            ← All news
-          </Link>
-        </aside>
+        </div>
+      </Container>
 
-        {/* Body — Markdown with raw HTML dropped (see components/markdown.tsx). */}
-        <div className="col-span-2 rounded-[8px] bg-tile p-6 md:col-span-8 lg:col-span-9 lg:p-12">
+      <Container className="mt-[clamp(2.5rem,5vw,4rem)]">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] md:aspect-[21/9]">
+          <PostPicture post={post} sizes="100vw" priority />
+        </div>
+      </Container>
+
+      {/* Body — Markdown with raw HTML dropped (see components/markdown.tsx). */}
+      <Container className="py-[clamp(4rem,8vw,7rem)]">
+        <div className="mx-auto max-w-[68ch]">
           {post.body.trim() ? (
-            <Markdown source={post.body} className="max-w-[68ch]" />
+            <Markdown source={post.body} />
           ) : (
             <p className="text-ink-soft">This post has no content yet.</p>
           )}
         </div>
-      </Board>
+      </Container>
 
       {more.length > 0 ? (
-        <Board as="section" aria-labelledby="more" className="mt-2">
-          <SectionHead id="more" title="More from the field" action={<MoreLink href="/news">All news</MoreLink>} />
-          {more.map((p) => (
-            <div key={p.id} className="col-span-2 md:col-span-6 lg:col-span-4">
-              <PostCard post={p} />
+        <section aria-labelledby="more" className="bg-ground-2 py-[clamp(5rem,10vw,8rem)]">
+          <Container>
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <Split id="more" text="More from *the field*" className="display text-[length:var(--text-head)]" />
+              <ArrowLink href="/news">All news</ArrowLink>
             </div>
-          ))}
-        </Board>
+            <div className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+              {more.map((p, i) => (
+                <PostCard key={p.id} post={p} index={i} />
+              ))}
+            </div>
+          </Container>
+        </section>
       ) : null}
     </article>
   );

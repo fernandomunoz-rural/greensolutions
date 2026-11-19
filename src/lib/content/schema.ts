@@ -130,9 +130,9 @@ export const SECTIONS: SectionDef[] = [
     id: "hero",
     label: "Home · Hero",
     description:
-      "The top of the home page. The big line is the planting calendar (what to plant this month); these texts sit under it.",
+      "The top of the home page: the big headline over a full-screen photo, with the intro and two buttons.",
     fields: [
-      long("title", "Main sentence", 120, { required: true, help: "The page title for search engines too. One sentence." }),
+      long("title", "Main sentence", 120, { required: true, help: "One sentence. Wrap words in *asterisks* to set them in italic." }),
       long("intro", "Intro", 300),
       t("primaryLabel", "Main button text", 40),
       link("primaryHref", "Main button link"),
@@ -143,7 +143,7 @@ export const SECTIONS: SectionDef[] = [
   {
     id: "stats",
     label: "Home · Numbers",
-    description: "Key figures, written into one paragraph. Each label should finish the sentence its number starts.",
+    description: "Key figures, shown in a row under the site description. Numbers count up as they scroll into view.",
     fields: [
       {
         kind: "list",
@@ -158,16 +158,16 @@ export const SECTIONS: SectionDef[] = [
   {
     id: "about",
     label: "Home · What we do",
-    description: "What Green Solutions does. The picture zooms in once per point as visitors scroll.",
+    description: "What Green Solutions does. The points light up one at a time as visitors scroll, beside a changing photo.",
     fields: [
-      t("title", "Title", 60, { required: true, help: "Short: it is split around the picture." }),
+      t("title", "Title", 60, { required: true, help: "Short. Wrap words in *asterisks* to set them in italic." }),
       long("intro", "Intro", 300),
       {
         kind: "image",
         key: "image",
         label: "Picture (optional)",
         max: 500,
-        help: "A photo of the islands. Without one, an aerial of Staniel Cay, Exuma is used.",
+        help: "Shown beside the first point. Without one, a photo of crop rows is used.",
       },
       {
         kind: "list",
@@ -194,7 +194,7 @@ export const SECTIONS: SectionDef[] = [
   {
     id: "cta",
     label: "Home · Call to action",
-    description: "The dark band at the bottom of the home page.",
+    description: "The full-width photo band at the bottom of the home page. Wrap words in *asterisks* to set them in italic.",
     fields: [
       t("title", "Title", 100, { required: true }),
       long("body", "Text", 240),

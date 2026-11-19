@@ -160,3 +160,17 @@ describe("planting calendar seasons", () => {
     for (const c of crops) expect(seasonMonths(c.season).length, c.name).toBeGreaterThan(0);
   });
 });
+
+describe("headline accents", () => {
+  it("marks *asterisk* runs as accent and strips them for plain text", async () => {
+    const { parseAccent, plain } = await import("@/components/motion/split");
+    expect(parseAccent("Grow *more* food")).toEqual([
+      { text: "Grow ", accent: false },
+      { text: "more", accent: true },
+      { text: " food", accent: false },
+    ]);
+    expect(parseAccent("No accent")).toEqual([{ text: "No accent", accent: false }]);
+    expect(parseAccent("Lone * star")).toEqual([{ text: "Lone * star", accent: false }]);
+    expect(plain(DEFAULT_CONTENT.hero.title)).toBe("Practical tools for growing food across the islands.");
+  });
+});

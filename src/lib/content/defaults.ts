@@ -15,7 +15,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     youtube: "https://youtube.com/@greensolutions",
   },
   hero: {
-    title: "Practical tools for growing food across the islands.",
+    title: "Practical tools for growing food *across the islands.*",
     intro:
       "Clear guidance and planning tools for gardeners, growers, and students — built for Bahamian soil, climate, and supply chains.",
     primaryLabel: "Create free account",
@@ -32,7 +32,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     ],
   },
   about: {
-    title: "Guidance you can act on",
+    title: "Guidance you can *act on*",
     intro:
       "We organize agricultural knowledge into clear, usable steps and tools — tuned to the realities of island growing.",
     image: "",
@@ -60,12 +60,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     intro: "Guidance, announcements, and field notes from the team.",
   },
   team: {
-    title: "The people behind the guidance",
+    title: "The people behind *the guidance*",
     intro:
       "Each office owns a defined part of the work — from applied agriculture to technology and outreach.",
   },
   cta: {
-    title: "Your first bed starts this month.",
+    title: "Your first bed *starts this month.*",
     body: "Free while we build. Set up in under a minute.",
     primaryLabel: "Create free account",
     primaryHref: "/signup",

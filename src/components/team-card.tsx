@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { memberAnchor, type TeamMember } from "@/lib/team";
+import { Arrow } from "./ui";
 
 function initials(name: string) {
   return name
@@ -11,25 +12,25 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-// Tiles without a portrait take one of these in turn, so a row of
-// initials reads as a set of colours, not a row of blanks.
-const TINTS = ["bg-field text-accent", "bg-sea text-on-sea-soft", "bg-accent text-field", "bg-ink text-accent"];
+// Without a portrait: the initials as a serif monogram, alternating two calm tones.
+const MONO = ["bg-ground-2 text-field", "bg-field text-accent"];
 
 function Portrait({ member, index }: { member: TeamMember; index: number }) {
   return (
-    <div className="relative aspect-[4/5] overflow-hidden" data-ui={member.photo_url ? undefined : ""}>
+    <div data-reveal="clip" style={{ ["--i" as string]: index % 4 }} className="relative aspect-[4/5] overflow-hidden rounded-[20px]">
       {member.photo_url ? (
         // eslint-disable-next-line @next/next/no-img-element -- storage URL
         <img
           src={member.photo_url}
           alt={`Portrait of ${member.name}`}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.03]"
+          className="h-full w-full object-cover transition-transform duration-[1200ms] ease-[var(--ease-out)] group-hover:scale-[1.05]"
         />
       ) : (
         <span
           aria-hidden="true"
-          className={`display flex h-full w-full items-end p-6 text-[clamp(3rem,2rem+3vw,5rem)] ${TINTS[index % TINTS.length]}`}
+          data-ui=""
+          className={`flex h-full w-full items-center justify-center font-serif text-[clamp(4rem,3rem+4vw,7rem)] italic transition-transform duration-[1200ms] ease-[var(--ease-out)] group-hover:scale-[1.05] ${MONO[index % MONO.length]}`}
         >
           {initials(member.name)}
         </span>
@@ -41,55 +42,45 @@ function Portrait({ member, index }: { member: TeamMember; index: number }) {
 /** Home page: portrait, name and office; links to the full profile. */
 export function MemberTile({ member, index = 0 }: { member: TeamMember; index?: number }) {
   return (
-    <Link
-      href={`/team#${memberAnchor(member.name)}`}
-      data-reveal
-      style={{ ["--i" as string]: index % 4 }}
-      className="group flex flex-col overflow-hidden rounded-[8px] bg-ground-2 transition-colors hover:bg-ground-3"
-    >
+    <Link href={`/team#${memberAnchor(member.name)}`} className="group block">
       <Portrait member={member} index={index} />
-      <div className="p-5">
-        <p className="font-semibold leading-tight text-ink">{member.name}</p>
-        <p className="mt-1 text-[length:var(--text-small)] text-ink-soft">{member.title}</p>
+      <div className="mt-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="font-medium leading-tight tracking-[-0.01em] text-ink">
+            <span className="line-link">{member.name}</span>
+          </p>
+          <p className="mt-1 text-[length:var(--text-small)] text-ink-soft">{member.title}</p>
+        </div>
+        <Arrow className="mt-1 shrink-0 text-ink-soft" />
       </div>
     </Link>
   );
 }
 
-/** Team page: the full profile as one tile. */
+/** Team page: the full profile. */
 export function TeamProfile({ member, index = 0 }: { member: TeamMember; index?: number }) {
   const bio = (member.bio || "").split(/\n{2,}/).filter(Boolean);
   return (
-    <article
-      id={memberAnchor(member.name)}
-      data-reveal
-      style={{ ["--i" as string]: index % 3 }}
-      className="group flex scroll-mt-24 flex-col overflow-hidden rounded-[8px] bg-ground-2"
-    >
+    <article id={memberAnchor(member.name)} className="group scroll-mt-28">
       <Portrait member={member} index={index} />
-      <div className="flex flex-1 flex-col p-6">
-        <h3 className="text-[length:var(--text-lead)] font-semibold leading-tight tracking-[-0.01em] text-ink">{member.name}</h3>
+      <div data-reveal style={{ ["--i" as string]: index % 4 }} className="mt-5">
+        <h3 className="text-[length:var(--text-lead)] font-medium leading-tight tracking-[-0.03em] text-ink">{member.name}</h3>
         <p className="mt-1 text-[length:var(--text-small)] text-ink-soft">{member.title}</p>
         {member.summary ? <p className="mt-4 text-ink">{member.summary}</p> : null}
         {bio.map((p, i) => (
-          <p key={i} className="mt-3 whitespace-pre-line text-ink">
+          <p key={i} className="mt-3 whitespace-pre-line text-ink-soft">
             {p}
           </p>
         ))}
         {member.email || member.linkedin_url ? (
-          <p className="mt-auto flex flex-wrap gap-x-5 gap-y-1 pt-6 text-[length:var(--text-small)] font-medium">
+          <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1 text-[length:var(--text-small)] font-medium">
             {member.email ? (
-              <a href={`mailto:${member.email}`} className="text-field underline decoration-1 underline-offset-4 hover:text-ink">
+              <a href={`mailto:${member.email}`} className="line-link text-field">
                 {member.email}
               </a>
             ) : null}
             {member.linkedin_url ? (
-              <a
-                href={member.linkedin_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-field underline decoration-1 underline-offset-4 hover:text-ink"
-              >
+              <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="line-link text-field">
                 LinkedIn
               </a>
             ) : null}

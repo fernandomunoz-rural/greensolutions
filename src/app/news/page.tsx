@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Board } from "@/components/ui";
+import { Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
 import { PostCard } from "@/components/cards";
 import { createClient } from "@/lib/supabase/server";
 import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
-import { PLACES } from "@/lib/places";
 
 export const metadata: Metadata = {
   title: "News & stories",
@@ -27,27 +26,30 @@ async function getPublishedPosts(): Promise<Post[]> {
 
 export default async function NewsPage() {
   const posts = await getPublishedPosts();
+  const [lead, ...rest] = posts;
 
   return (
     <>
       <PageHero
-        title="From the field"
+        title="From the *field*"
         intro="Updates, growing stories and announcements for gardeners and growers across The Bahamas."
-        place={PLACES.produceStall}
       />
-      <Board className="mt-2">
-        {posts.length === 0 ? (
-          <p className="col-span-2 rounded-[8px] bg-ground-2 p-6 text-[length:var(--text-lead)] md:col-span-12">
-            The first stories are on their way. Check back soon.
-          </p>
+      <Container className="pb-[clamp(3rem,6vw,5rem)] pt-[clamp(4rem,8vw,7rem)]">
+        {!lead ? (
+          <p className="text-[length:var(--text-lead)]">The first stories are on their way. Check back soon.</p>
         ) : (
-          posts.map((p) => (
-            <div key={p.id} className={posts.length === 1 ? "col-span-2 md:col-span-12" : "col-span-2 md:col-span-6 lg:col-span-4"}>
-              <PostCard post={p} wide={posts.length === 1} />
-            </div>
-          ))
+          <>
+            <PostCard post={lead} wide />
+            {rest.length ? (
+              <div className="mt-[clamp(4rem,8vw,7rem)] grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+                {rest.map((p, i) => (
+                  <PostCard key={p.id} post={p} index={i % 3} />
+                ))}
+              </div>
+            ) : null}
+          </>
         )}
-      </Board>
+      </Container>
     </>
   );
 }

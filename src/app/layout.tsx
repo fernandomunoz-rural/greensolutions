@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Jost } from "next/font/google";
+import { Inter_Tight, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { PublicOnly } from "@/components/public-only";
 import { Reveal } from "@/components/reveal";
+import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { getSiteContent, getViewer, isPreviewing } from "@/lib/content/load";
 
-// Jost: the one face of the site and the admin. next/font self-hosts it at
-// build time, so visitors never call Google.
-const jost = Jost({ subsets: ["latin"], variable: "--font-jost", display: "swap" });
+// Inter Tight for everything; Instrument Serif italic for accent words in
+// headlines. next/font self-hosts both at build time.
+const interTight = Inter_Tight({ subsets: ["latin"], variable: "--font-inter-tight", display: "swap" });
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+  display: "swap",
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const { settings } = await getSiteContent();
@@ -46,7 +54,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${jost.variable} h-full antialiased`}
+      className={`${interTight.variable} ${instrument.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -56,6 +64,7 @@ export default async function RootLayout({
       </head>
       <body className="flex min-h-full flex-col bg-ground text-ink">
         <Reveal />
+        <SmoothScroll />
         {previewing ? (
           <PublicOnly>
             <div className="font-ui flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-accent px-4 py-2 text-center text-sm font-medium text-ink">

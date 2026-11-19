@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ALL_PLATES } from "@/lib/calendar";
-import { Badge } from "./ui";
+import { Arrow, Badge } from "./ui";
 import { Icon } from "./icons";
 import { formatDate, readMinutes, type Post } from "@/lib/posts";
 import type { Article } from "@/data/articles";
@@ -14,44 +14,60 @@ export function fallbackPlate(slug: string) {
   return ALL_PLATES[h % ALL_PLATES.length];
 }
 
-/** An article as a tile: picture on top, then date, title and excerpt. */
-export function PostCard({ post, className = "", wide = false }: { post: Post; className?: string; /** Picture beside the words, for a lone article. */ wide?: boolean }) {
+/** The article's picture: its cover, or its botanical plate. */
+export function PostPicture({ post, sizes, priority = false }: { post: Post; sizes: string; priority?: boolean }) {
   const plate = post.cover_url ? null : fallbackPlate(post.slug);
   return (
-    <Link
-      href={`/news/${post.slug}`}
-      data-reveal
-      className={`group flex h-full flex-col overflow-hidden rounded-[8px] bg-ground-2 transition-colors duration-200 hover:bg-ground-3 ${wide ? "md:flex-row" : ""} ${className}`}
-    >
-      <div className={`relative aspect-[16/10] shrink-0 overflow-hidden bg-tile ${wide ? "md:aspect-auto md:min-h-[24rem] md:w-1/2" : ""}`}>
+    <div className="absolute inset-0 overflow-hidden bg-tile">
         {post.cover_url ? (
           // eslint-disable-next-line @next/next/no-img-element -- user-uploaded storage URL
           <img
             src={post.cover_url}
             alt=""
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.03]"
+            loading={priority ? undefined : "lazy"}
+            className="h-full w-full object-cover transition-transform duration-[1200ms] ease-[var(--ease-out)] group-hover:scale-[1.05]"
           />
         ) : plate ? (
           <Image
             src={plate.image}
             alt=""
             fill
-            sizes="(min-width: 768px) 33vw, 100vw"
-            className="object-cover mix-blend-multiply transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.03]"
+            sizes={sizes}
+            priority={priority}
+            className="object-cover mix-blend-multiply transition-transform duration-[1200ms] ease-[var(--ease-out)] group-hover:scale-[1.05]"
             style={{ objectPosition: plate.focus }}
           />
         ) : null}
+    </div>
+  );
+}
+
+/** An article: picture, date, title, excerpt. `wide` lays the picture beside the words. */
+export function PostCard({ post, wide = false, index = 0 }: { post: Post; wide?: boolean; index?: number }) {
+  return (
+    <Link
+      href={`/news/${post.slug}`}
+      data-reveal
+      style={{ ["--i" as string]: index }}
+      className={`group grid gap-6 ${wide ? "md:grid-cols-12 md:items-center md:gap-10" : ""}`}
+    >
+      <div className={`relative aspect-[4/3] overflow-hidden rounded-[20px] ${wide ? "md:col-span-7 md:aspect-[16/10]" : ""}`}>
+        <PostPicture post={post} sizes={wide ? "(min-width: 768px) 58vw, 100vw" : "(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"} />
       </div>
-      <div className="flex flex-1 flex-col p-6">
+      <div className={wide ? "md:col-span-5" : ""}>
         <p className="text-[length:var(--text-small)] text-ink-soft">
           {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
         </p>
-        <h3 className="mt-2 text-[length:var(--text-lead)] font-semibold leading-tight tracking-[-0.01em] text-ink">{post.title}</h3>
-        {post.excerpt ? <p className="mt-3 line-clamp-3 text-ink">{post.excerpt}</p> : null}
-        <span className="mt-auto flex items-center gap-2 pt-6 text-[length:var(--text-small)] font-medium text-field">
-          Read the article
-          <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+        <h3
+          className={`mt-3 font-medium leading-[1.1] tracking-[-0.03em] text-ink ${
+            wide ? "text-[clamp(1.75rem,1.2rem+1.8vw,3rem)]" : "text-[length:var(--text-lead)]"
+          }`}
+        >
+          <span className="line-link">{post.title}</span>
+        </h3>
+        {post.excerpt ? <p className="mt-3 line-clamp-3 text-ink-soft">{post.excerpt}</p> : null}
+        <span className="mt-5 inline-flex items-center gap-2 text-[length:var(--text-small)] font-medium text-ink">
+          Read the article <Arrow />
         </span>
       </div>
     </Link>

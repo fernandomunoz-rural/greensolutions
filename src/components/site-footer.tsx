@@ -1,107 +1,127 @@
 import Link from "next/link";
-import { Board } from "./ui";
-import { PICTURE_CREDITS } from "@/data/credits";
+import { Arrow, Container } from "./ui";
+import { PHOTO_CREDITS, PLATE_CREDITS } from "@/data/credits";
 import type { SiteContent } from "@/lib/content/schema";
 
 const links = [
+  { label: "What to plant", href: "/#calendar" },
+  { label: "What we do", href: "/#about" },
   { label: "News", href: "/news" },
   { label: "Team", href: "/team" },
-  { label: "What we do", href: "/#about" },
   { label: "Create an account", href: "/signup" },
   { label: "Log in", href: "/login" },
 ];
 
-const linkCls = "underline decoration-1 underline-offset-4 hover:text-field";
-
-/** The last row of the board: the name built large, then links, contact and credits as tiles. */
+/** The close of every page: contact as the headline, then links, then the name built huge. */
 export function SiteFooter({ settings }: { settings: SiteContent["settings"] }) {
   const socials = [
     { label: "Instagram", href: settings.instagram },
     { label: "Facebook", href: settings.facebook },
     { label: "YouTube", href: settings.youtube },
   ].filter((s) => s.href);
-  const words = settings.name.trim().split(/\s+/);
+  const [user, domain] = settings.email.split("@");
 
   return (
-    <footer className="mt-2 pb-2 sm:pb-3">
-      <Board>
-        <div className="col-span-2 flex min-h-[22rem] flex-col justify-between gap-10 rounded-[8px] bg-field p-6 text-on-field md:col-span-12 lg:col-span-7">
-          <p className="max-w-[46ch] text-on-field-soft">{settings.description}</p>
-          <p className="display text-[clamp(3.5rem,1rem+8vw,9rem)] uppercase leading-[0.85] text-accent" aria-label={settings.name}>
-            {words.map((w, i) => (
-              <span key={i} className="block" aria-hidden="true">
-                {w}
+    <footer className="relative mt-[clamp(4rem,8vw,8rem)] overflow-hidden bg-ink text-white">
+      <Container className="pt-[clamp(5rem,10vw,9rem)]">
+        <div className="grid gap-12 md:grid-cols-12">
+          <div className="md:col-span-7">
+            <p data-reveal className="display text-[length:var(--text-head)]">
+              Grow with <em>us.</em>
+            </p>
+            {settings.email ? (
+              <a
+                data-reveal
+                style={{ ["--i" as string]: 1 }}
+                href={`mailto:${settings.email}`}
+                className="group mt-8 inline-flex items-center gap-4 text-[clamp(1.25rem,0.9rem+1.4vw,2.25rem)] font-medium tracking-[-0.03em] text-accent"
+              >
+                <span className="line-link">
+                  {user}
+                  <wbr />@{domain}
+                </span>
+                <Arrow />
+              </a>
+            ) : null}
+            <p data-reveal style={{ ["--i" as string]: 2 }} className="mt-8 max-w-[46ch] text-on-field-soft">
+              {settings.description}
+            </p>
+          </div>
+
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-8 md:col-span-5 md:grid-cols-2">
+            <div>
+              <p className="text-[length:var(--text-small)] text-on-field-soft">Site</p>
+              <ul className="mt-4 space-y-2.5">
+                {links.map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href} className="line-link">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-[length:var(--text-small)] text-on-field-soft">Follow</p>
+              <ul className="mt-4 space-y-2.5">
+                {socials.map((s) => (
+                  <li key={s.label}>
+                    <a href={s.href} target="_blank" rel="noopener noreferrer" className="line-link">
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+                {settings.location ? <li className="pt-4 text-on-field-soft">{settings.location}</li> : null}
+              </ul>
+            </div>
+          </nav>
+        </div>
+
+        <details className="group/c mt-16 text-[length:var(--text-small)] text-on-field-soft">
+          <summary className="cursor-pointer list-none hover:text-white">
+            Picture credits <span className="inline-block transition-transform group-open/c:rotate-45">+</span>
+          </summary>
+          <p className="mt-3 max-w-[120ch] leading-relaxed">
+            Photographs:{" "}
+            {PHOTO_CREDITS.map((c, i) => (
+              <span key={c.href}>
+                <a href={c.href} target="_blank" rel="noopener noreferrer" className="underline decoration-1 underline-offset-2 hover:text-white">
+                  {c.by}
+                </a>
+                {i < PHOTO_CREDITS.length - 1 ? ", " : ". "}
               </span>
             ))}
-          </p>
-        </div>
-
-        <nav aria-label="Footer" className="col-span-1 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:col-span-2">
-          <p className="font-semibold">Site</p>
-          <ul className="mt-4 space-y-2">
-            {links.map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className={linkCls}>
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="col-span-1 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:col-span-3">
-          <p className="font-semibold">Contact</p>
-          <ul className="mt-4 space-y-2">
-            {settings.email ? (
-              <li>
-                <a href={`mailto:${settings.email}`} className={linkCls}>
-                  {settings.email.split("@")[0]}
-                  <wbr />@{settings.email.split("@")[1]}
-                </a>
-              </li>
-            ) : null}
-            {settings.location ? <li>{settings.location}</li> : null}
-            {socials.map((s) => (
-              <li key={s.label}>
-                <a href={s.href} target="_blank" rel="noopener noreferrer" className={linkCls}>
-                  {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="col-span-2 flex flex-col justify-between gap-6 rounded-[8px] bg-ground-2 p-6 md:col-span-4 lg:hidden">
-          <p className="font-semibold">{settings.name}</p>
-          <a href="#" className={`${linkCls} text-[length:var(--text-small)]`}>
-            Back to top
-          </a>
-        </div>
-
-        <div className="col-span-2 flex flex-wrap items-start justify-between gap-6 rounded-[8px] bg-ground-2 p-6 text-[length:var(--text-small)] md:col-span-12">
-          <p className="max-w-[110ch] text-ink">
-            Pictures:{" "}
-            {PICTURE_CREDITS.map((c, i) => (
+            Botanical plates (public domain):{" "}
+            {PLATE_CREDITS.map((c, i) => (
               <span key={c.href}>
-                <a href={c.href} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                <a href={c.href} target="_blank" rel="noopener noreferrer" className="underline decoration-1 underline-offset-2 hover:text-white">
                   {c.title}
                 </a>{" "}
-                by {c.by}, {c.licence}
-                {i < PICTURE_CREDITS.length - 1 ? "; " : ". "}
+                by {c.by}
+                {i < PLATE_CREDITS.length - 1 ? ", " : ". "}
               </span>
             ))}
-            Type: Jost by Owen Earl.
+            The atmosphere photographs are not of Green Solutions&rsquo; own land or people.
           </p>
-          <p className="flex gap-6">
-            <span>
-              © {new Date().getFullYear()} {settings.name}
-            </span>
-            <a href="#" className={`${linkCls} max-lg:hidden`}>
-              Back to top
-            </a>
+        </details>
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 py-6 text-[length:var(--text-small)] text-on-field-soft">
+          <p>
+            © {new Date().getFullYear()} {settings.name}
           </p>
+          <a href="#" className="line-link hover:text-white">
+            Back to top ↑
+          </a>
         </div>
-      </Board>
+      </Container>
+
+      {/* The name, built as large as the page allows and cropped by the bottom edge. */}
+      <p
+        aria-hidden="true"
+        className="display pointer-events-none -mb-[0.2em] select-none whitespace-nowrap px-[var(--gutter)] text-center text-[12.4vw] leading-[0.8] text-[#1f4d3a]"
+      >
+        {settings.name}
+      </p>
     </footer>
   );
 }
