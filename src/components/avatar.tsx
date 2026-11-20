@@ -29,13 +29,13 @@ export function Avatar({
       <img
         src={src}
         alt={name ? `${name}'s avatar` : "Avatar"}
-        className={`${className} shrink-0 rounded-full object-cover ring-1 ring-forest/10`}
+        className={`${className} shrink-0 rounded-full object-cover`}
       />
     );
   }
   return (
     <span
-      className={`${className} font-display flex shrink-0 items-center justify-center rounded-full bg-forest text-[0.8em] font-semibold text-mint ring-1 ring-forest/10`}
+      className={`${className} font-display flex shrink-0 items-center justify-center rounded-full bg-forest text-[0.8em] font-semibold text-mint`}
       aria-hidden="true"
     >
       {initials(name) || "•"}

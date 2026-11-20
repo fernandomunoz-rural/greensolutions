@@ -20,12 +20,12 @@ type Props = {
 
 /** Two-line wordmark recreation of the chosen brand logo. */
 export function Logo({ variant = "dark", className = "", withLink = true }: Props) {
-  const text = variant === "light" ? "text-paper" : "text-forest";
-  const leaf = variant === "light" ? "text-mint" : "text-leaf";
+  const text = variant === "light" ? "text-on-field" : "text-ink";
+  const leaf = variant === "light" ? "text-accent" : "text-field";
 
   const mark = (
     <span className={`inline-flex items-center ${className}`}>
-      <span className={`font-display font-bold leading-[0.92] tracking-tight ${text}`}>
+      <span className={`font-display leading-[0.92] tracking-[-0.03em] ${text}`} style={{ fontWeight: 500 }}>
         <span className="block text-[1.25em]">Green</span>
         <span className="flex items-center text-[1.25em]">
           Solut

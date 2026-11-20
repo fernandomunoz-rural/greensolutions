@@ -1,115 +1,163 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { Split } from "./motion/split";
 
-export function Container({
-  children,
-  className = "",
+/** The page's one column: max 1440px, the same side gutter everywhere. */
+export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`mx-auto w-full max-w-[1440px] px-[var(--gutter)] ${className}`}>{children}</div>;
+}
+
+/** A section's opening: headline with a word-by-word entrance, an intro, and an optional link. */
+export function SectionHead({
+  id,
+  title,
+  intro,
+  action,
+  tone = "dark",
 }: {
-  children: ReactNode;
-  className?: string;
+  id?: string;
+  title: string;
+  intro?: ReactNode;
+  action?: ReactNode;
+  tone?: "dark" | "light";
 }) {
   return (
-    <div className={`mx-auto w-full max-w-6xl px-5 sm:px-8 ${className}`}>
-      {children}
+    <div className="grid gap-8 md:grid-cols-12 md:items-end">
+      <Split id={id} text={title} className={`display text-[length:var(--text-head)] md:col-span-8 ${tone === "light" ? "text-white" : ""}`} />
+      <div className="md:col-span-4 md:justify-self-end">
+        {intro ? (
+          <p data-reveal className={`max-w-[38ch] ${tone === "light" ? "text-on-field-soft" : "text-ink-soft"}`}>
+            {intro}
+          </p>
+        ) : null}
+        {action ? (
+          <div data-reveal style={{ ["--i" as string]: 1 }} className={intro ? "mt-6" : ""}>
+            {action}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
+/** Arrow that slides on hover; used in buttons and links. */
+export function Arrow({ className = "" }: { className?: string }) {
   return (
-    <span className="inline-flex items-center gap-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-leaf">
-      <span className="h-px w-6 bg-leaf/50" />
-      {children}
+    <span aria-hidden="true" className={`relative inline-block h-[1em] w-[1.1em] shrink-0 overflow-hidden align-middle ${className}`}>
+      <span className="absolute inset-0 flex items-center justify-center leading-none transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-full">→</span>
+      <span className="absolute inset-0 flex -translate-x-full items-center justify-center leading-none transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-0">→</span>
     </span>
   );
 }
 
+/** "All news →" style text link with a drawn underline. */
+export function ArrowLink({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {
+  return (
+    <Link href={href} className={`group inline-flex items-center gap-2 font-medium ${className}`}>
+      <span className="line-link">{children}</span>
+      <Arrow />
+    </Link>
+  );
+}
+
+/**
+ * Kept so older pages still compile, but renders nothing: small labels above
+ * headings are against the house rules. Put the information in the heading.
+ */
+export function Eyebrow(_props: { children?: ReactNode }) {
+  void _props;
+  return null;
+}
+
+/** Older pages' section heading. */
 export function SectionHeading({
-  eyebrow,
   title,
   intro,
   align = "left",
   tone = "dark",
 }: {
+  /** Ignored (see Eyebrow). */
   eyebrow?: string;
   title: ReactNode;
   intro?: ReactNode;
   align?: "left" | "center";
   tone?: "dark" | "light";
 }) {
-  const titleColor = tone === "light" ? "text-white" : "text-forest";
-  const introColor = tone === "light" ? "text-mint-100/85" : "text-ink/65";
+  const titleColor = tone === "light" ? "text-on-field" : "text-ink";
+  const introColor = tone === "light" ? "text-on-field-soft" : "text-ink-soft";
   return (
-    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
-      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
-      <h2
-        className={`font-display mt-4 text-3xl font-semibold leading-[1.1] sm:text-[2.6rem] ${titleColor}`}
-      >
-        {title}
-      </h2>
-      {intro ? (
-        <p className={`mt-4 text-[1.05rem] leading-relaxed ${introColor}`}>{intro}</p>
-      ) : null}
+    <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
+      <h2 className={`display text-[length:var(--text-head)] ${titleColor}`}>{title}</h2>
+      {intro ? <p className={`mt-4 max-w-[52ch] text-[length:var(--text-body)] ${introColor}`}>{intro}</p> : null}
     </div>
   );
 }
 
 type ButtonProps = {
-  variant?: "primary" | "secondary" | "ghost" | "ochre";
+  variant?: "primary" | "secondary" | "ghost" | "ochre" | "accent" | "light" | "outline-light";
   size?: "md" | "lg";
+  /** Show the sliding arrow after the label. */
+  arrow?: boolean;
 } & (
   | ({ href: string } & Omit<ComponentProps<typeof Link>, "className">)
   | ({ href?: undefined } & ComponentProps<"button">)
 );
 
+// One button shape for the whole site: a flat pill.
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper focus-visible:ring-forest disabled:opacity-40 disabled:pointer-events-none";
+  "press group inline-flex items-center justify-center gap-3 rounded-full font-medium transition-colors duration-300 disabled:opacity-40 disabled:pointer-events-none";
 
 const buttonVariants: Record<string, string> = {
-  primary: "bg-forest text-paper hover:bg-forest-700",
-  ochre: "bg-ochre text-white hover:brightness-105",
-  secondary: "bg-mint text-forest hover:brightness-[1.03]",
-  ghost: "bg-transparent text-forest ring-1 ring-forest/15 hover:bg-forest/[0.04]",
+  primary: "bg-field text-on-field hover:bg-ink",
+  ochre: "bg-field text-on-field hover:bg-ink",
+  accent: "bg-accent text-ink hover:bg-white",
+  light: "bg-white text-ink hover:bg-accent",
+  "outline-light": "bg-white/10 text-white backdrop-blur-md hover:bg-white hover:text-ink",
+  secondary: "bg-ground-2 text-ink hover:bg-ink hover:text-ground",
+  ghost: "bg-ground-2 text-ink hover:bg-ink hover:text-ground",
 };
 
 const buttonSizes: Record<string, string> = {
-  md: "px-5 py-2.5 text-sm",
-  lg: "px-6 py-3 text-[0.95rem]",
+  md: "h-11 px-5 text-[length:var(--text-small)]",
+  lg: "h-14 px-7 text-[length:var(--text-body)]",
 };
 
 export function Button({
   variant = "primary",
   size = "md",
+  arrow = false,
   className = "",
+  children,
   ...props
-}: ButtonProps & { className?: string }) {
+}: ButtonProps & { className?: string; children?: ReactNode }) {
   const cls = `${buttonBase} ${buttonVariants[variant]} ${buttonSizes[size]} ${className}`;
+  const inner = (
+    <>
+      {children}
+      {arrow ? <Arrow /> : null}
+    </>
+  );
   if (props.href !== undefined) {
     const { href, ...rest } = props;
-    return <Link href={href} className={cls} {...rest} />;
+    return (
+      <Link href={href} className={cls} {...rest}>
+        {inner}
+      </Link>
+    );
   }
-  const { href: _omit, ...rest } = props;
-  return <button className={cls} {...(rest as ComponentProps<"button">)} />;
+  const rest = { ...props } as ComponentProps<"button"> & { href?: undefined };
+  delete rest.href;
+  return (
+    <button className={cls} {...rest}>
+      {inner}
+    </button>
+  );
 }
 
-export function Badge({
-  children,
-  tone = "leaf",
-}: {
-  children: ReactNode;
-  tone?: "leaf" | "ochre" | "sand" | "mint" | "neutral";
-}) {
-  const tones: Record<string, string> = {
-    leaf: "bg-leaf/10 text-leaf ring-leaf/15",
-    ochre: "bg-ochre/10 text-ochre ring-ochre/15",
-    sand: "bg-sand/40 text-forest ring-forest/10",
-    mint: "bg-mint/20 text-forest ring-forest/10",
-    neutral: "bg-forest/[0.06] text-forest ring-forest/10",
-  };
+/** Sentence-case marker, a step in tone, no outline. */
+export function Badge({ children }: { children: ReactNode; tone?: string }) {
   return (
-    <span
-      className={`inline-flex items-center rounded-md px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide ring-1 ${tones[tone]}`}
-    >
+    <span className="inline-flex items-center rounded-full bg-ground-2 px-3 py-1 text-[length:var(--text-small)] text-ink">
       {children}
     </span>
   );

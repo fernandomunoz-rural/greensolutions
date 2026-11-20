@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 import { Container } from "@/components/ui";
 import { PageHero } from "@/components/page-hero";
 import { PostCard } from "@/components/cards";
-import { Icon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/server";
 import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
 
 export const metadata: Metadata = {
-  title: "News & Stories",
-  description:
-    "Updates, growing stories, and announcements from the Green Solutions community across The Bahamas.",
+  title: "News & stories",
+  description: "Updates, growing stories, and announcements from the Green Solutions community across The Bahamas.",
 };
 
 // Always reflect the latest published posts.
@@ -28,33 +26,28 @@ async function getPublishedPosts(): Promise<Post[]> {
 
 export default async function NewsPage() {
   const posts = await getPublishedPosts();
+  const [lead, ...rest] = posts;
 
   return (
     <>
       <PageHero
-        eyebrow="News & stories"
-        title="From the field"
-        intro="Updates, growing stories, and announcements from the Green Solutions community. Fresh guidance for gardeners and growers across The Bahamas."
+        title="From the *field*"
+        intro="Updates, growing stories and announcements for gardeners and growers across The Bahamas."
       />
-      <Container className="py-14">
-        {posts.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
+      <Container className="pb-[clamp(3rem,6vw,5rem)] pt-[clamp(4rem,8vw,7rem)]">
+        {!lead ? (
+          <p className="text-[length:var(--text-lead)]">The first stories are on their way. Check back soon.</p>
         ) : (
-          <div className="mx-auto max-w-md rounded-xl border border-line bg-white px-6 py-16 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-forest/[0.06] text-forest">
-              <Icon.Newspaper className="h-6 w-6" />
-            </span>
-            <p className="font-display mt-4 text-lg font-semibold text-forest">
-              No posts yet
-            </p>
-            <p className="mt-1.5 text-sm text-ink/60">
-              The first stories are on their way. Check back soon.
-            </p>
-          </div>
+          <>
+            <PostCard post={lead} wide />
+            {rest.length ? (
+              <div className="mt-[clamp(4rem,8vw,7rem)] grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+                {rest.map((p, i) => (
+                  <PostCard key={p.id} post={p} index={i % 3} />
+                ))}
+              </div>
+            ) : null}
+          </>
         )}
       </Container>
     </>

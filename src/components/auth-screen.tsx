@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import Image from "next/image";
 import { Logo } from "./logo";
+import { PHOTOS } from "@/lib/photos";
 import { createClient } from "@/lib/supabase/client";
 import { site } from "@/data/site";
 
@@ -99,14 +101,13 @@ export function AuthScreen({ mode }: { mode: Mode }) {
   }
 
   return (
-    <div className="grid min-h-[calc(100vh-4.5rem)] lg:grid-cols-2">
+    <div className="mx-auto grid min-h-[100svh] w-full max-w-[1440px] gap-4 px-[var(--gutter)] pb-6 pt-24 lg:grid-cols-2">
       {/* Brand panel */}
-      <aside className="relative hidden flex-col justify-between bg-forest p-12 text-mint-100 lg:flex">
-        <Logo variant="light" className="text-[14px]" />
+      <aside className="relative isolate hidden flex-col justify-end overflow-hidden rounded-[28px] bg-forest p-10 text-mint-100 lg:flex">
+        <Image src={PHOTOS.leafDrop.image} alt="" fill sizes="50vw" priority className="-z-10 object-cover" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(13,31,23,0.05)_20%,rgba(13,31,23,0.88)_100%)]" />
         <div className="max-w-md">
-          <p className="font-display text-3xl font-semibold leading-tight text-white">
-            {site.motto}
-          </p>
+          <p className="display text-[clamp(2.25rem,1.4rem+2vw,3.5rem)] text-white">{site.motto}</p>
           <ul className="mt-10 space-y-4">
             {brandPoints.map((p) => (
               <li key={p} className="flex items-start gap-3 text-mint-100/85">
@@ -116,13 +117,13 @@ export function AuthScreen({ mode }: { mode: Mode }) {
             ))}
           </ul>
         </div>
-        <p className="text-sm text-mint-100/60">
+        <p className="mt-12 text-sm text-mint-100/70">
           {site.tagline} · {site.location}
         </p>
       </aside>
 
       {/* Form panel */}
-      <main className="flex items-center justify-center px-5 py-16 sm:px-8">
+      <main className="flex items-center justify-center rounded-[28px] bg-ground-2 px-5 py-16 sm:px-8">
         <div className="w-full max-w-md">
           {submitted ? (
             <SuccessCard email={values.email} name={values.name} />

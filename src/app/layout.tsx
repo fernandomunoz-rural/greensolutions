@@ -1,87 +1,97 @@
 import type { Metadata } from "next";
-import { Schibsted_Grotesk, Hanken_Grotesk } from "next/font/google";
+import Link from "next/link";
+import { Inter_Tight, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { createClient } from "@/lib/supabase/server";
-import { site } from "@/data/site";
+import { PublicOnly } from "@/components/public-only";
+import { Reveal } from "@/components/reveal";
+import { SmoothScroll } from "@/components/motion/smooth-scroll";
+import { getSiteContent, getViewer, isPreviewing } from "@/lib/content/load";
 
-const display = Schibsted_Grotesk({
-  variable: "--font-display",
+// Inter Tight for everything; Instrument Serif italic for accent words in
+// headlines. next/font self-hosts both at build time.
+const interTight = Inter_Tight({ subsets: ["latin"], variable: "--font-inter-tight", display: "swap" });
+const instrument = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
   display: "swap",
 });
 
-const body = Hanken_Grotesk({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  metadataBase: new URL("https://greensolutions.bs"),
-  title: {
-    default: `${site.name} — ${site.tagline}`,
-    template: `%s · ${site.name}`,
-  },
-  description: site.description,
-  keywords: [
-    "Bahamas agriculture",
-    "gardening",
-    "plant health",
-    "growing guides",
-    "food security",
-    "Green Solutions",
-  ],
-  openGraph: {
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-    type: "website",
-    locale: "en_BS",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { settings } = await getSiteContent();
+  const full = settings.tagline ? `${settings.name} — ${settings.tagline}` : settings.name;
+  return {
+    metadataBase: new URL("https://greensolutions.bs"),
+    title: { default: full, template: `%s · ${settings.name}` },
+    description: settings.description,
+    keywords: [
+      "Bahamas agriculture",
+      "gardening",
+      "plant health",
+      "growing guides",
+      "food security",
+      settings.name,
+    ],
+    openGraph: {
+      title: full,
+      description: settings.description,
+      type: "website",
+      locale: "en_BS",
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Pull the header's profile bits in the same request. Tolerate a missing
-  // `profiles` row / table (e.g. before content.sql is run) so the shell never
-  // crashes.
-  let avatarUrl: string | null = null;
-  let fullName: string | null = null;
-  let isStaff = false;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name, avatar_url, role")
-      .eq("id", user.id)
-      .single();
-    avatarUrl = profile?.avatar_url ?? null;
-    fullName = profile?.full_name ?? null;
-    isStaff = profile?.role === "admin" || profile?.role === "editor";
-  }
+  // All three are cached per request and tolerate missing tables, so the
+  // shell never crashes before the database setup has been run.
+  const [viewer, content, previewing] = await Promise.all([getViewer(), getSiteContent(), isPreviewing()]);
 
   return (
     <html
       lang="en"
-      className={`${display.variable} ${body.variable} h-full antialiased`}
+      className={`${interTight.variable} ${instrument.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col bg-paper text-ink">
-        <SiteHeader
-          isAuthed={!!user}
-          isStaff={isStaff}
-          avatarUrl={avatarUrl}
-          fullName={fullName}
-        />
+      <head>
+        {/* Marks that scripts run, so entrance animations may start hidden.
+            Without it every [data-reveal] element simply stays visible. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
+      <body className="flex min-h-full flex-col bg-ground text-ink">
+        <Reveal />
+        <SmoothScroll />
+        {previewing ? (
+          <PublicOnly>
+            <div className="font-ui flex flex-wrap items-center justify-center gap-x-4 gap-y-1 bg-accent px-4 py-2 text-center text-sm font-medium text-ink">
+              <span>Preview mode: you’re seeing the saved draft, not the live site.</span>
+              <span className="flex gap-3">
+                <Link href="/admin/content" className="underline underline-offset-2">
+                  Back to editor
+                </Link>
+                <a href="/admin/preview?off=1" className="underline underline-offset-2">
+                  Exit preview
+                </a>
+              </span>
+            </div>
+          </PublicOnly>
+        ) : null}
+        <PublicOnly>
+          <SiteHeader
+            isAuthed={!!viewer.userId}
+            isStaff={viewer.isStaff}
+            avatarUrl={viewer.avatarUrl}
+            fullName={viewer.fullName}
+          />
+        </PublicOnly>
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <PublicOnly>
+          <SiteFooter settings={content.settings} />
+        </PublicOnly>
       </body>
     </html>
   );

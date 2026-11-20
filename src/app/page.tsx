@@ -1,10 +1,27 @@
-import Link from "next/link";
-import { Container, SectionHeading, Button, Eyebrow } from "@/components/ui";
-import { Icon } from "@/components/icons";
+import type { ReactNode } from "react";
+import { ArrowLink, Button, Container, SectionHead } from "@/components/ui";
+import { Split } from "@/components/motion/split";
+import { ParallaxImage } from "@/components/motion/parallax-image";
+import { ScrollWords } from "@/components/motion/scroll-words";
+import { CountUp } from "@/components/motion/count-up";
+import { StickyPoints } from "@/components/motion/sticky-points";
+import { PlantingCalendar } from "@/components/motion/planting-calendar";
+import { CropCarousel } from "@/components/motion/crop-carousel";
 import { PostCard } from "@/components/cards";
+import { MemberTile } from "@/components/team-card";
 import { createClient } from "@/lib/supabase/server";
 import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
-import { site, stats, values, offices, problems } from "@/data/site";
+import { getSiteContent } from "@/lib/content/load";
+import { getPublicTeam } from "@/lib/team-load";
+import type { HomeSectionId, SiteContent } from "@/lib/content/schema";
+import { orderTeam, type TeamMember } from "@/lib/team";
+import { MONTHS } from "@/lib/calendar";
+import { PHOTOS } from "@/lib/photos";
+
+export const dynamic = "force-dynamic";
+
+const HOME_TEAM_LIMIT = 8;
+const section = "py-[clamp(6rem,12vw,11rem)]";
 
 async function getLatestPosts(): Promise<Post[]> {
   const supabase = await createClient();
@@ -18,300 +35,233 @@ async function getLatestPosts(): Promise<Post[]> {
   return (data ?? []) as unknown as Post[];
 }
 
-// Tools that are temporarily disabled while the project is in early design.
-// Shown on the home page as a roadmap so the scope is clear without linking out.
-const comingSoon = [
-  { name: "Plant Doctor", note: "Diagnose common plant problems by symptom." },
-  { name: "Learning Hub", note: "Plain-language guides for every growing stage." },
-  { name: "Crop Guides", note: "What grows well in Bahamian conditions." },
-  { name: "Resources", note: "Videos, downloads, and quick answers." },
-];
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+/** The month in Nassau, whatever time zone the server runs in. */
+function nassauMonth(): number {
+  const m = new Intl.DateTimeFormat("en-US", { month: "numeric", timeZone: "America/Nassau" }).format(new Date());
+  return Number(m) - 1;
 }
 
-export default async function HomePage() {
-  const latestPosts = await getLatestPosts();
+/* Hero: a full-screen photograph that settles and drifts, the headline rising word by word. */
+function Hero({ hero }: { hero: SiteContent["hero"] }) {
   return (
-    <>
-      {/* HERO */}
-      <section className="border-b border-forest-700/40 bg-forest text-mint-100">
-        <Container className="py-20 sm:py-28">
-          <div className="grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="animate-fade-in">
-              <Eyebrow>Agriculture for The Bahamas</Eyebrow>
-              <h1 className="font-display mt-6 text-[2.6rem] font-semibold leading-[1.04] tracking-tight text-white sm:text-6xl">
-                Grow food with confidence, anywhere in the islands.
-              </h1>
-              <p className="mt-7 max-w-xl text-lg leading-relaxed text-mint-100/80">
-                {site.description}
-              </p>
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Button href="/signup" variant="secondary" size="lg">
-                  Create free account
-                </Button>
-                <Button
-                  href="/login"
-                  size="lg"
-                  className="bg-transparent text-mint-100 ring-1 ring-white/20 hover:bg-white/[0.06]"
-                >
-                  Log in
-                </Button>
-              </div>
-              <p className="mt-12 border-t border-white/10 pt-6 text-sm font-medium tracking-wide text-mint/80">
-                {site.motto}
-              </p>
-            </div>
+    <section className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink text-white">
+      <ParallaxImage
+        src={PHOTOS.leaves.image}
+        alt=""
+        position={PHOTOS.leaves.position}
+        priority
+        intro
+        strength={0.18}
+        className="absolute! inset-0 -z-10"
+      />
+      {/* Shade for legibility: darker at the foot where the words sit. */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(13,31,23,0.45)_0%,rgba(13,31,23,0.15)_35%,rgba(13,31,23,0.85)_100%)]" />
 
-            {/* Roadmap panel — signals where the project is heading */}
-            <div className="animate-fade-in">
-              <div className="rounded-2xl border border-white/10 bg-white p-7 text-ink shadow-[var(--shadow-soft)]">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-forest/[0.06] text-forest">
-                    <Icon.Leaf className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-leaf">
-                      On the way
-                    </p>
-                    <p className="font-display text-lg font-semibold text-forest">
-                      Tools we&apos;re building
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-5 text-sm leading-relaxed text-ink/65">
-                  We&apos;re starting small on purpose. Create an account to be
-                  first in line as each tool goes live.
-                </p>
-                <ul className="mt-6 space-y-2.5">
-                  {comingSoon.map((t) => (
-                    <li
-                      key={t.name}
-                      className="flex items-start gap-3 rounded-lg border border-line px-4 py-3"
-                    >
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-leaf" />
-                      <span>
-                        <span className="block text-sm font-semibold text-forest">
-                          {t.name}
-                        </span>
-                        <span className="block text-xs text-ink/55">
-                          {t.note}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+      <Container className="pb-[clamp(2.5rem,6vw,5rem)] pt-32">
+        <Split as="h1" immediate text={hero.title} delay={250} className="display max-w-[16ch] text-[length:var(--text-display)]" />
+        <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">
+          {hero.intro ? (
+            <p className="animate-fade-in max-w-[44ch] text-[length:var(--text-lead)] leading-snug text-white/80 [animation-delay:900ms] md:col-span-6">
+              {hero.intro}
+            </p>
+          ) : null}
+          <div className="animate-fade-in flex flex-wrap gap-3 [animation-delay:1100ms] md:col-span-6 md:justify-end">
+            {hero.primaryLabel && hero.primaryHref ? (
+              <Button href={hero.primaryHref} variant="accent" size="lg" arrow>
+                {hero.primaryLabel}
+              </Button>
+            ) : null}
+            {hero.secondaryLabel && hero.secondaryHref ? (
+              <Button href={hero.secondaryHref} variant="outline-light" size="lg">
+                {hero.secondaryLabel}
+              </Button>
+            ) : null}
           </div>
-        </Container>
-      </section>
+        </div>
+        <div className="animate-fade-in mt-12 flex items-center justify-between border-t border-white/15 pt-5 text-[length:var(--text-small)] text-white/70 [animation-delay:1300ms]">
+          <span>Nassau, The Bahamas</span>
+          <a href="#calendar" className="flex items-center gap-3 hover:text-white">
+            Scroll
+            <span aria-hidden="true" className="relative block h-8 w-px overflow-hidden bg-white/20">
+              <span className="cue absolute inset-0 bg-white" />
+            </span>
+          </a>
+        </div>
+      </Container>
+    </section>
+  );
+}
 
-      {/* STATS */}
-      <section className="border-b border-line bg-white">
-        <Container className="py-12">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
-            {stats.map((s) => (
-              <div key={s.label}>
-                <dt className="font-display text-4xl font-semibold tracking-tight text-forest">
-                  {s.value}
-                </dt>
-                <dd className="mt-2 text-sm leading-snug text-ink/55">
-                  {s.label}
+/* The calendar: what goes in the ground this month. */
+function Calendar() {
+  const month = nassauMonth();
+  return (
+    <section id="calendar" aria-labelledby="calendar-title" className={`scroll-mt-16 bg-field text-white ${section}`}>
+      <Container>
+        <SectionHead
+          id="calendar-title"
+          tone="light"
+          title={`What to plant in *${MONTHS[month]}*`}
+          intro="Pick a month to see what goes in the ground across the islands, and how soon you will be picking."
+        />
+        <div className="mt-14">
+          <PlantingCalendar initialMonth={month} />
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* Figures: the site's purpose lit up word by word, then the numbers counting up. */
+function Stats({ items, description }: { items: SiteContent["stats"]["items"]; description: string }) {
+  return (
+    <section aria-labelledby="in-numbers" className={section}>
+      <Container>
+        <h2 id="in-numbers" className="sr-only">
+          Why it matters
+        </h2>
+        {description ? (
+          <ScrollWords
+            text={description}
+            className="max-w-[26ch] text-[clamp(1.875rem,1.1rem+2.9vw,4rem)] font-medium leading-[1.08] tracking-[-0.04em] md:max-w-[30ch]"
+          />
+        ) : null}
+        {items.length ? (
+          <dl className="mt-[clamp(4rem,9vw,8rem)] grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4">
+            {items.map((s, i) => (
+              <div key={`${s.value}-${i}`} data-reveal style={{ ["--i" as string]: i }} className="border-t border-ink/15 pt-6">
+                <dt className="sr-only">{s.label}</dt>
+                <dd>
+                  <CountUp value={s.value} className="display block text-[clamp(3rem,2rem+3.6vw,6rem)]" />
+                  <span className="mt-4 block max-w-[24ch] text-ink-soft">{s.label}</span>
                 </dd>
               </div>
             ))}
           </dl>
-        </Container>
-      </section>
+        ) : null}
+      </Container>
+    </section>
+  );
+}
 
-      {/* LATEST NEWS — only shows once posts are published */}
-      {latestPosts.length > 0 ? (
-        <section className="border-b border-line bg-paper py-24">
-          <Container>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <SectionHeading
-                eyebrow="From the field"
-                title="Latest news & stories"
-                intro="Fresh guidance, updates, and growing stories from the community."
-              />
-              <Link
-                href="/news"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-leaf"
-              >
-                View all news
-                <Icon.ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {latestPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          </Container>
-        </section>
-      ) : null}
-
-      {/* WHY WE EXIST */}
-      <section className="py-24">
-        <Container>
-          <SectionHeading
-            eyebrow="Why we exist"
-            title="Clear, local guidance you can actually use"
-            intro="Agriculture in The Bahamas faces real pressure — imported food, high costs, limited land. Green Solutions turns that complexity into simple, confident next steps."
-          />
-          <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-            {values.map((v, i) => (
-              <div key={v.title} className="border-t border-forest/15 pt-5">
-                <span className="font-display text-sm font-semibold text-leaf">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="font-display mt-3 text-lg font-semibold text-forest">
-                  {v.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink/65">
-                  {v.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* ABOUT — problem & approach */}
-      <section id="about" className="scroll-mt-20 border-y border-line bg-white py-24">
-        <Container>
-          <div className="grid gap-12 lg:grid-cols-2">
-            <div>
-              <Eyebrow>The problem</Eyebrow>
-              <h2 className="font-display mt-4 text-2xl font-semibold text-forest sm:text-3xl">
-                Why this matters
-              </h2>
-              <p className="mt-3 text-ink/65">
-                Agriculture in The Bahamas faces real, stacked challenges. Many
-                people want to grow food or learn but don&apos;t have simple,
-                reliable support they can use.
-              </p>
-              <ul className="mt-6 space-y-2.5">
-                {problems.map((p) => (
-                  <li
-                    key={p}
-                    className="flex items-start gap-3 rounded-xl border border-line bg-paper p-4"
-                  >
-                    <span className="mt-2 h-px w-3 shrink-0 bg-ochre" />
-                    <span className="text-sm text-ink/75">{p}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <Eyebrow>Our approach</Eyebrow>
-              <h2 className="font-display mt-4 text-2xl font-semibold text-forest sm:text-3xl">
-                What we&apos;re doing about it
-              </h2>
-              <p className="mt-3 text-ink/65">
-                We&apos;re starting small on purpose — organizing knowledge,
-                designing tools, and exploring how technology, including AI, can
-                support learning. We expand only after ideas are tested and shown
-                to be useful.
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {values.map((v) => (
-                  <div
-                    key={v.title}
-                    className="rounded-xl border border-line bg-paper p-5"
-                  >
-                    <h3 className="font-display font-semibold text-forest">
-                      {v.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-ink/65">{v.body}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* TEAM */}
-      <section id="team" className="scroll-mt-20 py-24">
-        <Container>
-          <SectionHeading
-            eyebrow="The living structure"
-            title="A connected team, each with a clear role"
-            intro="Green Solutions operates as a connected system. Each office has a clear role, and all work together in a continuous cycle of learning, support, and development."
-          />
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {offices.map((o) => (
-              <div
-                key={o.name}
-                className="flex flex-col rounded-xl border border-line bg-white p-6 transition-colors hover:border-forest/25"
-              >
-                <div className="flex items-center gap-3.5">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-forest font-display text-sm font-semibold text-mint">
-                    {initials(o.lead)}
-                  </span>
-                  <div>
-                    <p className="font-medium text-forest">{o.lead}</p>
-                    <p className="text-xs text-ink/55">{o.name}</p>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-ink/65">
-                  {o.role}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* CURRENT STAGE + MOTTO */}
-      <Container className="pb-24">
-        <div className="rounded-2xl bg-forest px-8 py-16 text-center text-mint-100 sm:px-16">
-          <Eyebrow>Current stage</Eyebrow>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-mint-100/80">
-            The project is in the planning and early design stage — gathering
-            resources, seeking mentors, building a small interdisciplinary team,
-            and defining clear goals and next steps.
-          </p>
-          <p className="font-display mt-8 text-2xl font-medium text-mint">
-            {site.motto}
-          </p>
+/* What we do: points light up in turn beside a photo that holds still and changes. */
+function About({ about }: { about: SiteContent["about"] }) {
+  const pics = [
+    about.image ? { src: about.image, alt: "" } : { src: PHOTOS.cropRows.image, alt: PHOTOS.cropRows.alt },
+    { src: PHOTOS.hands.image, alt: PHOTOS.hands.alt },
+    { src: PHOTOS.orangeTree.image, alt: PHOTOS.orangeTree.alt, position: PHOTOS.orangeTree.position },
+    { src: PHOTOS.leafRain.image, alt: PHOTOS.leafRain.alt },
+  ];
+  return (
+    <section id="about" aria-labelledby="about-title" className={`scroll-mt-16 bg-ground-2 ${section}`}>
+      <Container>
+        <SectionHead id="about-title" title={about.title} intro={about.intro} />
+        <div className="mt-[clamp(3rem,7vw,6rem)]">
+          <StickyPoints points={about.items} pics={pics} />
         </div>
       </Container>
+    </section>
+  );
+}
 
-      {/* CTA */}
-      <section className="pb-24">
-        <Container>
-          <div className="rounded-2xl border border-line bg-white px-8 py-16 text-center sm:px-16">
-            <Eyebrow>Join the project</Eyebrow>
-            <h2 className="font-display mx-auto mt-5 max-w-2xl text-3xl font-semibold leading-tight text-forest sm:text-[2.5rem]">
-              Create an account and grow with us
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-ink/65">
-              Whether you grow, teach, mentor, or just want to learn — there is a
-              place for you here. Set up your account in under a minute.
-            </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <Button href="/signup" size="lg">
-                Create free account
-              </Button>
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-[0.95rem] font-semibold text-forest ring-1 ring-forest/15 transition-colors hover:bg-forest/[0.04]"
-              >
-                I already have an account
-              </Link>
+/* News: the latest articles. */
+function News({ copy, posts }: { copy: SiteContent["news"]; posts: Post[] }) {
+  if (posts.length === 0) return null;
+  return (
+    <section aria-labelledby="latest" className={section}>
+      <Container>
+        <SectionHead id="latest" title={copy.title} intro={copy.intro} action={<ArrowLink href="/news">All news</ArrowLink>} />
+        <div className={`mt-14 grid gap-x-8 gap-y-14 ${posts.length === 1 ? "" : posts.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+          {posts.map((p, i) => (
+            <PostCard key={p.id} post={p} wide={posts.length === 1} index={i} />
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* Team: portraits, four across. */
+function Team({ copy, members }: { copy: SiteContent["team"]; members: TeamMember[] }) {
+  if (members.length === 0) return null;
+  const shown = orderTeam(members).slice(0, HOME_TEAM_LIMIT);
+  return (
+    <section id="team" aria-labelledby="team-title" className={`scroll-mt-16 ${section}`}>
+      <Container>
+        <SectionHead id="team-title" title={copy.title} intro={copy.intro} action={<ArrowLink href="/team">Meet everyone</ArrowLink>} />
+        <div className="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 md:gap-x-6">
+          {shown.map((m, i) => (
+            <MemberTile key={m.id} member={m} index={i} />
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* Close: the islands, full width, with the action over them. */
+function Cta({ cta }: { cta: SiteContent["cta"] }) {
+  return (
+    <section aria-labelledby="cta-title" className="px-[calc(var(--gutter)/2)]">
+      <ParallaxImage
+        src={PHOTOS.exuma.image}
+        alt={PHOTOS.exuma.alt}
+        position={PHOTOS.exuma.position}
+        strength={0.15}
+        sizes="100vw"
+        className="mx-auto max-w-[1600px] rounded-[28px]"
+      >
+        <div className="relative flex min-h-[min(88svh,820px)] flex-col justify-end bg-[linear-gradient(180deg,rgba(13,31,23,0.05)_30%,rgba(13,31,23,0.75)_100%)] p-[clamp(1.5rem,5vw,4.5rem)] text-white">
+          <Split id="cta-title" text={cta.title} className="display max-w-[14ch] text-[length:var(--text-head)]" />
+          <div className="mt-8 grid gap-6 md:grid-cols-12 md:items-end">
+            {cta.body ? (
+              <p data-reveal className="max-w-[40ch] text-[length:var(--text-lead)] leading-snug text-white/85 md:col-span-6">
+                {cta.body}
+              </p>
+            ) : null}
+            <div data-reveal style={{ ["--i" as string]: 1 }} className="flex flex-wrap gap-3 md:col-span-6 md:justify-end">
+              {cta.primaryLabel && cta.primaryHref ? (
+                <Button href={cta.primaryHref} variant="accent" size="lg" arrow>
+                  {cta.primaryLabel}
+                </Button>
+              ) : null}
+              {cta.secondaryLabel && cta.secondaryHref ? (
+                <Button href={cta.secondaryHref} variant="outline-light" size="lg">
+                  {cta.secondaryLabel}
+                </Button>
+              ) : null}
             </div>
           </div>
-        </Container>
-      </section>
+          <p className="mt-10 text-[length:var(--text-small)] text-white/60">
+            Little Exuma, The Bahamas. Photo: {PHOTOS.exuma.credit}
+          </p>
+        </div>
+      </ParallaxImage>
+    </section>
+  );
+}
+
+export default async function HomePage() {
+  const [content, posts, team] = await Promise.all([getSiteContent(), getLatestPosts(), getPublicTeam()]);
+
+  const sections: Record<HomeSectionId, ReactNode> = {
+    stats: <Stats items={content.stats.items} description={content.settings.description} />,
+    news: <News copy={content.news} posts={posts} />,
+    about: <About about={content.about} />,
+    team: <Team copy={content.team} members={team} />,
+    cta: <Cta cta={content.cta} />,
+  };
+
+  return (
+    <>
+      <Hero hero={content.hero} />
+      <CropCarousel />
+      <Calendar />
+      {content.home
+        .filter((s) => s.visible)
+        .map((s) => (
+          <div key={s.id}>{sections[s.id]}</div>
+        ))}
     </>
   );
 }

@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Container, Badge } from "@/components/ui";
-import { PostCard } from "@/components/cards";
+import { ArrowLink, Container } from "@/components/ui";
+import { PostCard, PostPicture } from "@/components/cards";
 import { Avatar } from "@/components/avatar";
-import { Icon } from "@/components/icons";
+import { Markdown } from "@/components/markdown";
+import { Split } from "@/components/motion/split";
 import { createClient } from "@/lib/supabase/server";
-import {
-  POST_WITH_AUTHOR,
-  formatDate,
-  readMinutes,
-  toParagraphs,
-  type Post,
-} from "@/lib/posts";
+import { POST_WITH_AUTHOR, formatDate, readMinutes, type Post } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
 
@@ -63,91 +58,62 @@ export default async function PostPage({
     .limit(3);
   const more = (moreData ?? []) as unknown as Post[];
 
-  const paragraphs = toParagraphs(post.body);
-
   return (
     <article>
-      {/* Header */}
-      <header className="border-b border-forest-700/40 bg-forest text-mint-100">
-        <Container className="py-16">
-          <Link
-            href="/news"
-            className="inline-flex items-center gap-2 text-sm font-medium text-mint hover:text-white"
-          >
-            <Icon.ArrowLeft className="h-4 w-4" /> Back to News
-          </Link>
-          <div className="mt-7 max-w-3xl">
-            {post.category ? <Badge tone="mint">{post.category}</Badge> : null}
-            <h1 className="font-display mt-5 text-3xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl">
-              {post.title}
-            </h1>
-            {post.excerpt ? (
-              <p className="mt-5 text-lg text-mint-100/80">{post.excerpt}</p>
-            ) : null}
-            <div className="mt-7 flex items-center gap-3">
-              <Avatar
-                src={post.author?.avatar_url}
-                name={post.author?.full_name}
-                className="h-10 w-10 text-sm"
-              />
-              <div className="text-sm text-mint-100/70">
-                <span className="block font-semibold text-mint">
-                  {post.author?.full_name ?? "Green Solutions"}
-                </span>
-                <span>
-                  {formatDate(post.published_at)} · {readMinutes(post.body)} min
-                  read
-                </span>
-              </div>
-            </div>
+      <Container className="pt-[clamp(8rem,14vw,12rem)]">
+        <Link
+          href="/news"
+          className="group animate-fade-in inline-flex items-center gap-2 text-[length:var(--text-small)] font-medium text-ink-soft hover:text-ink"
+        >
+          <span aria-hidden="true" className="transition-transform group-hover:-translate-x-1">
+            ←
+          </span>
+          <span className="line-link">All news</span>
+        </Link>
+        <Split as="h1" immediate text={post.title} className="display mt-8 max-w-[20ch] text-[clamp(2.5rem,1.2rem+5vw,6.5rem)]" />
+        <div className="mt-10 grid gap-6 md:grid-cols-12 md:items-end">
+          {post.excerpt ? (
+            <p className="animate-fade-in max-w-[40ch] text-[length:var(--text-lead)] leading-snug text-ink-soft [animation-delay:350ms] md:col-span-7">
+              {post.excerpt}
+            </p>
+          ) : null}
+          <div className="animate-fade-in flex items-center gap-3 [animation-delay:500ms] md:col-span-5 md:justify-self-end">
+            <Avatar src={post.author?.avatar_url} name={post.author?.full_name} className="h-11 w-11 shrink-0 text-sm" />
+            <p className="text-[length:var(--text-small)] text-ink-soft">
+              <span className="block font-medium text-ink">{post.author?.full_name ?? "Green Solutions"}</span>
+              {[post.category, formatDate(post.published_at), `${readMinutes(post.body)} min read`].filter(Boolean).join(" · ")}
+            </p>
           </div>
-        </Container>
-      </header>
+        </div>
+      </Container>
 
-      {/* Cover */}
-      {post.cover_url ? (
-        <Container className="pt-14">
-          <div className="mx-auto max-w-3xl overflow-hidden rounded-xl border border-line">
-            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded storage URL */}
-            <img
-              src={post.cover_url}
-              alt=""
-              className="w-full object-cover"
-            />
-          </div>
-        </Container>
-      ) : null}
+      <Container className="mt-[clamp(2.5rem,5vw,4rem)]">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] md:aspect-[21/9]">
+          <PostPicture post={post} sizes="100vw" priority />
+        </div>
+      </Container>
 
-      {/* Body — rendered as escaped paragraphs, never raw HTML. */}
-      <Container className={post.cover_url ? "py-10" : "py-14"}>
-        <div className="prose-gs mx-auto max-w-3xl text-[1.05rem]">
-          {paragraphs.length > 0 ? (
-            paragraphs.map((para, i) => (
-              <p key={i}>
-                {para.split("\n").map((line, j, arr) => (
-                  <span key={j}>
-                    {line}
-                    {j < arr.length - 1 ? <br /> : null}
-                  </span>
-                ))}
-              </p>
-            ))
+      {/* Body — Markdown with raw HTML dropped (see components/markdown.tsx). */}
+      <Container className="py-[clamp(4rem,8vw,7rem)]">
+        <div className="mx-auto max-w-[68ch]">
+          {post.body.trim() ? (
+            <Markdown source={post.body} />
           ) : (
-            <p className="text-ink/50">This post has no content yet.</p>
+            <p className="text-ink-soft">This post has no content yet.</p>
           )}
         </div>
       </Container>
 
-      {/* More posts */}
       {more.length > 0 ? (
-        <section className="border-t border-line bg-white py-16">
+        <section aria-labelledby="more" className="bg-ground-2 py-[clamp(5rem,10vw,8rem)]">
           <Container>
-            <h2 className="font-display text-2xl font-semibold text-forest">
-              More from the field
-            </h2>
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {more.map((p) => (
-                <PostCard key={p.id} post={p} />
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <Split id="more" text="More from *the field*" className="display text-[length:var(--text-head)]" />
+              <ArrowLink href="/news">All news</ArrowLink>
+            </div>
+            <div className="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+              {more.map((p, i) => (
+                <PostCard key={p.id} post={p} index={i} />
               ))}
             </div>
           </Container>
