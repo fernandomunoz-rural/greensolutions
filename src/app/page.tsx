@@ -16,7 +16,7 @@ import { getPublicTeam } from "@/lib/team-load";
 import type { HomeSectionId, SiteContent } from "@/lib/content/schema";
 import { orderTeam, type TeamMember } from "@/lib/team";
 import { MONTHS } from "@/lib/calendar";
-import { PHOTOS } from "@/lib/photos";
+import { PHOTOS, type Photo } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
 
@@ -46,9 +46,9 @@ function Hero({ hero }: { hero: SiteContent["hero"] }) {
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink text-white">
       <ParallaxImage
-        src={PHOTOS.leaves.image}
+        src={hero.image || PHOTOS.leaves.image}
         alt=""
-        position={PHOTOS.leaves.position}
+        position={hero.image ? undefined : PHOTOS.leaves.position}
         priority
         intro
         strength={0.18}
@@ -93,7 +93,7 @@ function Hero({ hero }: { hero: SiteContent["hero"] }) {
 }
 
 /* The calendar: what goes in the ground this month. */
-function Calendar() {
+function Calendar({ copy }: { copy: SiteContent["calendar"] }) {
   const month = nassauMonth();
   return (
     <section id="calendar" aria-labelledby="calendar-title" className={`scroll-mt-16 bg-field text-white ${section}`}>
@@ -101,8 +101,8 @@ function Calendar() {
         <SectionHead
           id="calendar-title"
           tone="light"
-          title={`What to plant in *${MONTHS[month]}*`}
-          intro="Pick a month to see what goes in the ground across the islands, and how soon you will be picking."
+          title={`${copy.title} *${MONTHS[month]}*`}
+          intro={copy.intro || undefined}
         />
         <div className="mt-14">
           <PlantingCalendar initialMonth={month} />
@@ -146,12 +146,13 @@ function Stats({ items, description }: { items: SiteContent["stats"]["items"]; d
 
 /* What we do: points light up in turn beside a photo that holds still and changes. */
 function About({ about }: { about: SiteContent["about"] }) {
-  const pics = [
-    about.image ? { src: about.image, alt: "" } : { src: PHOTOS.cropRows.image, alt: PHOTOS.cropRows.alt },
-    { src: PHOTOS.hands.image, alt: PHOTOS.hands.alt },
-    { src: PHOTOS.orangeTree.image, alt: PHOTOS.orangeTree.alt, position: PHOTOS.orangeTree.position },
-    { src: PHOTOS.leafRain.image, alt: PHOTOS.leafRain.alt },
-  ];
+  // Each point's own photo when uploaded, otherwise the built-in ones in turn.
+  const builtIn: Photo[] = [PHOTOS.cropRows, PHOTOS.hands, PHOTOS.orangeTree, PHOTOS.leafRain];
+  const pics = about.items.map((p, i) => {
+    if (p.image) return { src: p.image, alt: "" };
+    const b = builtIn[i % builtIn.length];
+    return { src: b.image, alt: b.alt, position: b.position };
+  });
   return (
     <section id="about" aria-labelledby="about-title" className={`scroll-mt-16 bg-ground-2 ${section}`}>
       <Container>
@@ -204,9 +205,9 @@ function Cta({ cta }: { cta: SiteContent["cta"] }) {
   return (
     <section aria-labelledby="cta-title" className="px-[calc(var(--gutter)/2)]">
       <ParallaxImage
-        src={PHOTOS.exuma.image}
-        alt={PHOTOS.exuma.alt}
-        position={PHOTOS.exuma.position}
+        src={cta.image || PHOTOS.exuma.image}
+        alt={cta.image ? "" : PHOTOS.exuma.alt}
+        position={cta.image ? undefined : PHOTOS.exuma.position}
         strength={0.15}
         sizes="100vw"
         className="mx-auto max-w-[1600px] rounded-[28px]"
@@ -232,9 +233,11 @@ function Cta({ cta }: { cta: SiteContent["cta"] }) {
               ) : null}
             </div>
           </div>
-          <p className="mt-10 text-[length:var(--text-small)] text-white/60">
-            Little Exuma, The Bahamas. Photo: {PHOTOS.exuma.credit}
-          </p>
+          {cta.image ? null : (
+            <p className="mt-10 text-[length:var(--text-small)] text-white/60">
+              Little Exuma, The Bahamas. Photo: {PHOTOS.exuma.credit}
+            </p>
+          )}
         </div>
       </ParallaxImage>
     </section>
@@ -256,7 +259,7 @@ export default async function HomePage() {
     <>
       <Hero hero={content.hero} />
       <CropCarousel />
-      <Calendar />
+      <Calendar copy={content.calendar} />
       {content.home
         .filter((s) => s.visible)
         .map((s) => (

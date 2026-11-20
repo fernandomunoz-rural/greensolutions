@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Arrow, Container } from "./ui";
+import { Accent } from "./motion/split";
 import { PHOTO_CREDITS, PLATE_CREDITS } from "@/data/credits";
 import type { SiteContent } from "@/lib/content/schema";
 
@@ -26,9 +27,11 @@ export function SiteFooter({ settings }: { settings: SiteContent["settings"] }) 
       <Container className="pt-[clamp(5rem,10vw,9rem)]">
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-7">
-            <p data-reveal className="display text-[length:var(--text-head)]">
-              Grow with <em>us.</em>
-            </p>
+            {settings.footerTitle ? (
+              <p data-reveal className="display text-[length:var(--text-head)]">
+                <Accent text={settings.footerTitle} />
+              </p>
+            ) : null}
             {settings.email ? (
               <a
                 data-reveal

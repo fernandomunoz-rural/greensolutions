@@ -1,5 +1,7 @@
 export const site = {
   name: "Green Solutions",
+  /** The public address. The bare gsbahamas.com redirects here (set in Vercel). */
+  url: "https://www.gsbahamas.com",
   tagline: "Practical agriculture for The Bahamas",
   motto: "Cultivate with care, sow with love, and harvest life.",
   description:

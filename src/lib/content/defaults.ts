@@ -13,15 +13,21 @@ export const DEFAULT_CONTENT: SiteContent = {
     instagram: "https://instagram.com/greensolutions",
     facebook: "https://facebook.com/greensolutions",
     youtube: "https://youtube.com/@greensolutions",
+    footerTitle: "Grow with *us.*",
   },
   hero: {
     title: "Practical tools for growing food *across the islands.*",
     intro:
       "Clear guidance and planning tools for gardeners, growers, and students — built for Bahamian soil, climate, and supply chains.",
+    image: "",
     primaryLabel: "Create free account",
     primaryHref: "/signup",
     secondaryLabel: "Read the latest",
     secondaryHref: "/news",
+  },
+  calendar: {
+    title: "What to plant in",
+    intro: "Pick a month to see what goes in the ground across the islands, and how soon you will be picking.",
   },
   stats: {
     items: [
@@ -35,38 +41,46 @@ export const DEFAULT_CONTENT: SiteContent = {
     title: "Guidance you can *act on*",
     intro:
       "We organize agricultural knowledge into clear, usable steps and tools — tuned to the realities of island growing.",
-    image: "",
     items: [
       {
         title: "Reduce confusion",
         body: "We organize agricultural knowledge in clear, simple ways so anyone can follow it.",
+        image: "",
       },
       {
         title: "Support decisions",
         body: "Practical tools help growers make better choices about what, when, and how to plant.",
+        image: "",
       },
       {
         title: "Make it accessible",
         body: "Guidance is free, plain-language, and built for the realities of island growing.",
+        image: "",
       },
       {
         title: "Fit Bahamian conditions",
         body: "Everything is tuned for our climate, soils, salt air, and short supply chains.",
+        image: "",
       },
     ],
   },
   news: {
     title: "Latest updates",
     intro: "Guidance, announcements, and field notes from the team.",
+    pageTitle: "From the *field*",
+    pageIntro: "Updates, growing stories and announcements for gardeners and growers across The Bahamas.",
   },
   team: {
     title: "The people behind *the guidance*",
     intro:
       "Each office owns a defined part of the work — from applied agriculture to technology and outreach.",
+    image: "",
+    joinTitle: "Want to grow *with us?*",
   },
   cta: {
     title: "Your first bed *starts this month.*",
     body: "Free while we build. Set up in under a minute.",
+    image: "",
     primaryLabel: "Create free account",
     primaryHref: "/signup",
     secondaryLabel: "Log in",

@@ -22,7 +22,11 @@ export default async function TeamPage() {
   return (
     <>
       {/* The islands the team works for; not the team's own land. */}
-      <PageHero title={content.team.title} intro={content.team.intro} photo={PHOTOS.stanielCay} />
+      <PageHero
+        title={content.team.title}
+        intro={content.team.intro}
+        photo={content.team.image ? { image: content.team.image, alt: "" } : PHOTOS.stanielCay}
+      />
 
       <Container className="py-[clamp(5rem,10vw,9rem)]">
         {groups.length === 0 ? (
@@ -47,10 +51,10 @@ export default async function TeamPage() {
         )}
       </Container>
 
-      {content.settings.email ? (
+      {content.settings.email && content.team.joinTitle ? (
         <Container>
           <div className="flex flex-col gap-8 rounded-[28px] bg-field p-[clamp(1.75rem,5vw,4.5rem)] text-white md:flex-row md:items-end md:justify-between">
-            <Split text="Want to grow *with us?*" className="display max-w-[14ch] text-[length:var(--text-head)]" />
+            <Split text={content.team.joinTitle} className="display max-w-[14ch] text-[length:var(--text-head)]" />
             <Button href={`mailto:${content.settings.email}`} variant="accent" size="lg" arrow>
               Write to us
             </Button>
