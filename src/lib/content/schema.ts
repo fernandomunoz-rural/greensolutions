@@ -41,6 +41,7 @@ export type HomeLayoutItem = { id: HomeSectionId; visible: boolean };
 export type SectionId =
   | "settings"
   | "hero"
+  | "calendar"
   | "stats"
   | "about"
   | "news"
@@ -57,27 +58,30 @@ export type SiteContent = {
     instagram: string;
     facebook: string;
     youtube: string;
+    footerTitle: string;
   };
   hero: {
     title: string;
     intro: string;
+    image: string;
     primaryLabel: string;
     primaryHref: string;
     secondaryLabel: string;
     secondaryHref: string;
   };
+  calendar: { title: string; intro: string };
   stats: { items: { value: string; label: string }[] };
   about: {
     title: string;
     intro: string;
-    image: string;
-    items: { title: string; body: string }[];
+    items: { title: string; body: string; image: string }[];
   };
-  news: { title: string; intro: string };
-  team: { title: string; intro: string };
+  news: { title: string; intro: string; pageTitle: string; pageIntro: string };
+  team: { title: string; intro: string; image: string; joinTitle: string };
   cta: {
     title: string;
     body: string;
+    image: string;
     primaryLabel: string;
     primaryHref: string;
     secondaryLabel: string;
@@ -106,6 +110,7 @@ const link = (key: string, label: string): TextField => ({
   max: 300,
   help: "A page on this site like /news or /#team, or a full https:// address.",
 });
+const img = (key: string, label: string, help: string): TextField => ({ kind: "image", key, label, max: 500, help });
 
 export const SECTIONS: SectionDef[] = [
   {
@@ -124,6 +129,7 @@ export const SECTIONS: SectionDef[] = [
       { kind: "url", key: "instagram", label: "Instagram link", max: 300 },
       { kind: "url", key: "facebook", label: "Facebook link", max: 300 },
       { kind: "url", key: "youtube", label: "YouTube link", max: 300 },
+      t("footerTitle", "Footer headline", 60, { help: "The big line at the top of every page's footer. Wrap words in *asterisks* for italic." }),
     ],
   },
   {
@@ -134,10 +140,21 @@ export const SECTIONS: SectionDef[] = [
     fields: [
       long("title", "Main sentence", 120, { required: true, help: "One sentence. Wrap words in *asterisks* to set them in italic." }),
       long("intro", "Intro", 300),
+      img("image", "Background photo", "Full-screen photo behind the headline. Leave empty for the close-up of green shoots."),
       t("primaryLabel", "Main button text", 40),
       link("primaryHref", "Main button link"),
       t("secondaryLabel", "Second button text", 40),
       link("secondaryHref", "Second button link"),
+    ],
+  },
+  {
+    id: "calendar",
+    label: "Home · Planting calendar",
+    description:
+      "The dark green section under the hero. The month is added to the end of the title by itself, in italic; the crops come from the crop guides.",
+    fields: [
+      t("title", "Title", 60, { required: true, help: "Shown before the month, e.g. “What to plant in” November." }),
+      long("intro", "Intro", 240),
     ],
   },
   {
@@ -163,33 +180,41 @@ export const SECTIONS: SectionDef[] = [
       t("title", "Title", 60, { required: true, help: "Short. Wrap words in *asterisks* to set them in italic." }),
       long("intro", "Intro", 300),
       {
-        kind: "image",
-        key: "image",
-        label: "Picture (optional)",
-        max: 500,
-        help: "Shown beside the first point. Without one, a photo of crop rows is used.",
-      },
-      {
         kind: "list",
         key: "items",
         label: "Points",
         itemLabel: "Point",
         max: 8,
-        item: [t("title", "Title", 60, { required: true }), long("body", "Text", 240)],
+        item: [
+          t("title", "Title", 60, { required: true }),
+          long("body", "Text", 240),
+          img("image", "Photo", "Shown while this point is lit. Leave empty for one of the built-in photos."),
+        ],
       },
     ],
   },
   {
     id: "news",
-    label: "Home · Latest news",
-    description: "Heading over the latest articles. The section only shows once an article is published.",
-    fields: [t("title", "Title", 100, { required: true }), long("intro", "Intro", 300)],
+    label: "News",
+    description:
+      "The heading over the latest articles on the home page (it only shows once an article is published), and the top of the News page.",
+    fields: [
+      t("title", "Home heading", 100, { required: true }),
+      long("intro", "Home intro", 300),
+      t("pageTitle", "News page title", 60, { required: true, help: "Wrap words in *asterisks* to set them in italic." }),
+      long("pageIntro", "News page intro", 300),
+    ],
   },
   {
     id: "team",
-    label: "Home · Team",
-    description: "Heading over the team. People are edited under Team.",
-    fields: [t("title", "Title", 100, { required: true }), long("intro", "Intro", 300)],
+    label: "Team",
+    description: "The heading over the team on the home page and the top of the Team page. People are edited under Team.",
+    fields: [
+      t("title", "Title", 100, { required: true, help: "Used on the home page and the Team page. Wrap words in *asterisks* for italic." }),
+      long("intro", "Intro", 300),
+      img("image", "Team page photo", "The wide photo under the Team page title. Leave empty for the aerial of Staniel Cay."),
+      t("joinTitle", "Join line", 60, { help: "The green band at the end of the Team page, above the email button." }),
+    ],
   },
   {
     id: "cta",
@@ -198,6 +223,7 @@ export const SECTIONS: SectionDef[] = [
     fields: [
       t("title", "Title", 100, { required: true }),
       long("body", "Text", 240),
+      img("image", "Background photo", "The full-width photo. Leave empty for Little Exuma."),
       t("primaryLabel", "Main button text", 40),
       link("primaryHref", "Main button link"),
       t("secondaryLabel", "Second button text", 40),

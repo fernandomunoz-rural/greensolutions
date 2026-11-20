@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Container } from "./ui";
 import { Split } from "./motion/split";
 import { ParallaxImage } from "./motion/parallax-image";
-import type { Photo } from "@/lib/photos";
+import type { StaticImageData } from "next/image";
 
 /**
  * Inner-page opening: the title large on the limestone ground, the intro
@@ -20,7 +20,8 @@ export function PageHero({
   title: string;
   intro?: ReactNode;
   children?: ReactNode;
-  photo?: Photo;
+  /** A built-in photo (with its credit) or an uploaded one. */
+  photo?: { image: StaticImageData | string; alt: string; credit?: string; position?: string };
 }) {
   return (
     <section className="pt-[clamp(8rem,16vw,13rem)]">
@@ -47,7 +48,9 @@ export function PageHero({
               strength={0.1}
               className="aspect-[4/3] rounded-[20px] md:aspect-[21/9]"
             />
-            <figcaption className="mt-3 text-[length:var(--text-small)] text-ink-soft">Photo: {photo.credit}</figcaption>
+            {photo.credit ? (
+              <figcaption className="mt-3 text-[length:var(--text-small)] text-ink-soft">Photo: {photo.credit}</figcaption>
+            ) : null}
           </figure>
         </Container>
       ) : null}

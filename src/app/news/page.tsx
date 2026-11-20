@@ -4,11 +4,12 @@ import { PageHero } from "@/components/page-hero";
 import { PostCard } from "@/components/cards";
 import { createClient } from "@/lib/supabase/server";
 import { POST_WITH_AUTHOR, type Post } from "@/lib/posts";
+import { getSiteContent } from "@/lib/content/load";
 
-export const metadata: Metadata = {
-  title: "News & stories",
-  description: "Updates, growing stories, and announcements from the Green Solutions community across The Bahamas.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { news } = await getSiteContent();
+  return { title: "News & stories", description: news.pageIntro || undefined };
+}
 
 // Always reflect the latest published posts.
 export const dynamic = "force-dynamic";
@@ -25,14 +26,14 @@ async function getPublishedPosts(): Promise<Post[]> {
 }
 
 export default async function NewsPage() {
-  const posts = await getPublishedPosts();
+  const [posts, content] = await Promise.all([getPublishedPosts(), getSiteContent()]);
   const [lead, ...rest] = posts;
 
   return (
     <>
       <PageHero
-        title="From the *field*"
-        intro="Updates, growing stories and announcements for gardeners and growers across The Bahamas."
+        title={content.news.pageTitle}
+        intro={content.news.pageIntro || undefined}
       />
       <Container className="pb-[clamp(3rem,6vw,5rem)] pt-[clamp(4rem,8vw,7rem)]">
         {!lead ? (

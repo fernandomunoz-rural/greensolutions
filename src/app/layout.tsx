@@ -8,6 +8,7 @@ import { PublicOnly } from "@/components/public-only";
 import { Reveal } from "@/components/reveal";
 import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { getSiteContent, getViewer, isPreviewing } from "@/lib/content/load";
+import { site } from "@/data/site";
 
 // Inter Tight for everything; Instrument Serif italic for accent words in
 // headlines. next/font self-hosts both at build time.
@@ -24,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { settings } = await getSiteContent();
   const full = settings.tagline ? `${settings.name} — ${settings.tagline}` : settings.name;
   return {
-    metadataBase: new URL("https://greensolutions.bs"),
+    metadataBase: new URL(site.url),
     title: { default: full, template: `%s · ${settings.name}` },
     description: settings.description,
     keywords: [
